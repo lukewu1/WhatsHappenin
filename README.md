@@ -10,3 +10,7 @@ Prerequisites: Standard Web browser
 
 Instructions on how to run the application: On the world map you will select a country and a date and you will recieve the most relevant news for this place and time.
 
+Running tests: Postman
+
+LINK:
+
