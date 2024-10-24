@@ -6,3 +6,7 @@ Curious about what's happening in the world? Our application allows users to dro
 
 Technology:HTML, postgress, javascript, SQL, NODE.JS
 
+Prerequisites: Standard Web browser
+
+Instructions on how to run the application: On the world map you will select a country and a date and you will recieve the most relevant news for this place and time.
+
