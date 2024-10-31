@@ -1,0 +1,5 @@
+Meeting with Abijtih
+10/28/24 (5:45)
+
+-Decided on adding a feature for users to upload images as they choose.
+-Agreed on user interface options that inlvolves posting or submitting some sort of data to post
