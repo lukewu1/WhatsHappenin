@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Events</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="my-4">Discover Events</h1>
+        
+        {{#if message}}
+            {{> message message=message }} <!-- Include message partial -->
+        {{/if}}
+
+        <div class="row">
+            {{#each results}}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.name}}</h5>
+                            <p class="card-text">Date: {{this.dates.start.localDate}} at {{this.dates.start.localTime}}</p>
+                            <a href="{{this.url}}" class="btn btn-primary">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+            {{else}}
+                <div class="col-12">
+                    <p>No events found.</p>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</body>
+</html>
