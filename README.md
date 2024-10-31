@@ -1,17 +1,36 @@
 # WhatsHappenin - Team 2
+CSCI 3308 Section 12 Team 2 Project
 
-Brief application description: 
+## Brief Application Description
+Curious about what's happening in the world? Our application allows users to drop pins around the world to tell them the local news at that specific location. WhatsHappenin brings the news to you based on your location of interest whether out of research for a particular area or out of simple curiosity.
 
-Team Members: Kenneth Flowe, Aidan Donnelly, Alicia Zhang, Eric David, Luke Wu
+## Contributors
+* Aidan Donnelly
+* Alicia Zhang
+* Eric David
+* Kenneth Flowe
+* Luke Wu
 
-Curious about what's happening in the world? Our application allows users to drop pins around the world and tells them the local news at that location on a specific date. 
+## Technology Stack
+* HTML
+* PostgreSQL
+* JavaScript
+* SQL
+* Node.js
+* Bootstrap
+* Express.js
+* Handlebars.js
+* Docker
 
-Technology Stack: HTML, postgress, javascript, SQL, NODE.JS
+## Prerequisites to Run Application
+Standard web browser
 
-Prerequisites: Standard web browser
+## Instructions To Run the Application
+On the world map you will select a country and a date and you will recieve the most relevant news for this place and time.
 
-Instructions on how to run the application: On the world map you will select a country and a date and you will recieve the most relevant news for this place and time.
+## Instructions To Run the Application Locally 
 
-Running tests: Postman
+## How to Run Tests
 
-LINK:
+
+## Link to Deployed Application:
