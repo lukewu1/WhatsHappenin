@@ -206,6 +206,10 @@ app.get("/discover", auth, async (req, res) => {
   }
 });
 
+app.get("/newsMap", (req, res) => {
+  res.render("pages/newsMap");
+});
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");
