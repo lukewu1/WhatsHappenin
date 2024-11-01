@@ -210,6 +210,10 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");
 });
+
+app.get("/savedpages", (req, res) => {
+  res.render("pages/savedarticles");
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
