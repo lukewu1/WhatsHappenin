@@ -154,56 +154,30 @@ app.post("/register", async (req, res) => {
     });
 });
 
-app.get("/discover", auth, async (req, res) => {
+app.get("/newsSearch", auth, async (req, res) => {
+    const axios = require("axios");
+
+async function getLiveNews() {
   try {
-    const response = await axios({
-      url: `https://app.ticketmaster.com/discovery/v2/events.json`,
-      method: "GET",
-      dataType: "json",
-      headers: {
-        "Accept-Encoding": "application/json",
-      },
-      params: {
-        apikey: process.env.API_KEY,
-        keyword: "Don Toliver", //you can choose any artist/event here
-        size: 10, // you can choose the number of events you would like to return
-      },
-    })
-      .then((results) => {
-        if(!results.data || !results.data._embedded ) {
-          res.render("pages/discover", {
-            results: [],
-            message: "",
-          });
-        } else {
-          console.log("==============");
-          console.log(results.data._embedded.events); // the results will be displayed on the terminal if the docker containers are running // Send some parameters
-          console.log("==============");
-          res.render("pages/discover", {
-            results: results.data._embedded.events,
-            message: "",
-          });
-        }
-       
-
-        
-      })
-      .catch((error) => {
-        console.error(error);
-        res.render("pages/discover", {
-          results: [],
-          message: "Failed to fetch events. Please try again later.",
-        });
-      });
-
-    // Render discover.hbs with results
-  } catch (error) {
-    console.error(error);
-    res.render("pages/discover", {
-      results: [],
-      message: "Failed to fetch events. Please try again later.",
+    const response = await axios.get("https://serpapi.com/search.json", {
+        params: {
+        q: "Live news",
+        location: "Austin, Texas, United States",
+        hl: "en",
+        gl: "us",
+        api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e"
+      }
     });
+
+    // Log the local news section from the response
+    console.log(response.data.local_news);
+  } catch (error) {
+    console.error("Error fetching news:", error);
   }
+}
+
+// Call the function
+getLiveNews();
 });
 
 app.get("/logout", (req, res) => {
