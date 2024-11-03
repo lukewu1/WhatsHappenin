@@ -207,7 +207,10 @@ app.get("/discover", auth, async (req, res) => {
 });
 
 app.get("/newsMap", (req, res) => {
-  res.render("pages/newsMap");
+  
+  const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
+
+  res.render("pages/newsMap", { mapAPI });
 });
 
 app.get("/logout", (req, res) => {

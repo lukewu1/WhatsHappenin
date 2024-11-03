@@ -1,10 +1,13 @@
 <html>
   <head>
     <title>Simple Marker</title>
-    <link rel="stylesheet" href="./style.css" />
+    <script async src="{{mapAPI}}&callback=init"></script>
+  </head>
 
-    <script async src="{{mapAPI}}&callback=initMap"></script>
+  <link rel="stylesheet" href="./style.css" />
 
+  <body>
+    <div id="map" style="height: 500px; width: 100%"></div>
 
     <script>
       function initMap() {
@@ -13,7 +16,6 @@
           zoom: 4,
           center: mapCenter,
         });
-        
         map.addListener("click", (event) => {
           addMaker(event.latLng, map);
         });
@@ -22,8 +24,5 @@
         new google.maps.Marker({ position: location, map: map });
       }
     </script>
-  </head>
-  <body>
-    <div id="map" style="height: 500px; width: 100%"></div>
   </body>
 </html>
