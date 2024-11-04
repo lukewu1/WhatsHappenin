@@ -10,6 +10,22 @@
 <body>
     <div class="container" style="padding: 50px">
         <h1>Saved Articles</h1>
-        {{>articleCard}}
+        <div class="d-flex flex-column align-items-center">
+            {{#each articles}}
+            {{>articlecard}}
+            {{/each}}
+        </div>
     </div>
 </body>
+
+<style>
+  .article-card {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+  }
+</style>
