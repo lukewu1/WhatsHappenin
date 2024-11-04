@@ -1,20 +1,16 @@
 <header>
-  <nav class="navbar navbar-expand-sm border-bottom">
-    <div class="container">
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            {{!-- nav-link is just a regular style tag
-            me-3 adds a gap to the right --}}
-            <a href="/newsMap" class="nav-link me-3" style="text-decoration: none;">Map</a> 
-          </li>
-          <li class="nav-item">
-            <a href="/savedArticles" class="nav-link" style="text-decoration: none;">Saved Articles</a>
-          </li>
-        </ul>
-        <div class="nav-item me-1">
-          <a href="/logout" class="nav-link" style="text-decoration: none;">Logout</a>
+  <nav class="border-b">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <div class="d-flex">
+        <div class="border-r-8 border-white p-2">
+          <a href="/newsMap" class="text-gray-800 hover:text-gray-600" style="text-decoration: none;">Map</a>
         </div>
+        <div class="border-l-8 border-white p-2">
+          <a href="/savedArticles" class="text-gray-800 hover:text-gray-600" style="text-decoration: none;">Saved Articles</a>
+        </div>
+      </div>
+      <div class="p-2">
+        <a href="/logout" class="text-gray-800 hover:text-gray-600" style="text-decoration: none;">Logout</a>
       </div>
     </div>
   </nav>
