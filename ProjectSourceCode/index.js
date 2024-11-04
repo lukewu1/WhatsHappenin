@@ -70,19 +70,6 @@ app.use(
   })
 );
 
-// Authentication Middleware.
-const auth = (req, res, next) => {
-  console.log(req.session);
-  if (!req.session.user) {
-    // Default to login page.
-    return res.redirect("/login");
-  }
-  next();
-};
-
-// Authentication Required
-// app.use(auth);
-
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -96,114 +83,107 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-app.post("/login", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+app.post('/login', async (req, res) => {
+  //hash the password using bcrypt library
+  const query = 'SELECT * FROM users WHERE username = $1';
+  const user = await db.oneOrNone(query, [req.body.username]);
 
-  const query = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-
-  db.any(query, [username])
-    .then(async (data) => {
-      const match = await bcrypt.compare(password, data[0].password);
-      if (match) {
-        req.session.user = username;
+  if(user){
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match)
+      {
+        //save user details in session like in lab 7
+        req.session.user = user;
         req.session.save();
-        res.redirect("/discover");
-      } else {
-        res.redirect("/register");
+        res.redirect('/discover');
       }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+      else
+      {
+        res.render('pages/login', {message: "Incorrect username or password."});
+      }
+  }
+  else{
+    res.redirect('/register');
+  }
 });
 
 app.get("/register", (req, res) => {
   res.render("pages/register");
 });
 
-app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
-  const username = req.body.username;
-  const hash = await bcrypt.hash(req.body.password, 10);
+app.post('/register', async (req, res) => {
+  if(req.body.password != req.body.confirmpassword){
+    res.render('pages/register', {message: "Passwords didn't match."});
+  }
+  else
+  {
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const check_query = 'SELECT * FROM users WHERE username = $1 LIMIT 1';
+    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
 
-  // To-DO: Insert username and hashed password into the 'users' table
-  const select = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-  db.any(select, [username])
-    .then((data) => {
-      if (data[0]) {
-        res.redirect("/login");
-      } else {
-        const insert = `INSERT INTO users (username, password) VALUES ($1, $2);`;
-        db.none(insert, [username, hash])
-          .then((data) => {
-            req.session.user = username;
-            req.session.save();
-            res.redirect("/discover");
-          })
-          .catch(function (err) {
-            console.log("Error registering user: ", err);
-            res.redirect("/register");
-          });
-      }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+    user_exists = await db.oneOrNone(check_query, [req.body.username]);
+
+    if(user_exists)
+    {
+      res.render('pages/login');
+    }
+    else{
+      db.one(insert_query, [req.body.username, hash])
+      .then(function (data){
+        res.redirect('/discover');
+      })
+      .catch(function(err)
+      {
+        res.redirect('/register');
+      })
+    }
+  }
 });
 
-app.get("/discover", auth, async (req, res) => {
-  try {
-    const response = await axios({
-      url: `https://app.ticketmaster.com/discovery/v2/events.json`,
-      method: "GET",
-      dataType: "json",
-      headers: {
-        "Accept-Encoding": "application/json",
-      },
-      params: {
-        apikey: process.env.API_KEY,
-        keyword: "Don Toliver", //you can choose any artist/event here
-        size: 10, // you can choose the number of events you would like to return
-      },
-    })
-      .then((results) => {
-        if(!results.data || !results.data._embedded ) {
-          res.render("pages/discover", {
-            results: [],
-            message: "",
-          });
-        } else {
-          console.log("==============");
-          console.log(results.data._embedded.events); // the results will be displayed on the terminal if the docker containers are running // Send some parameters
-          console.log("==============");
-          res.render("pages/discover", {
-            results: results.data._embedded.events,
-            message: "",
-          });
-        }
-       
-
-        
-      })
-      .catch((error) => {
-        console.error(error);
-        res.render("pages/discover", {
-          results: [],
-          message: "Failed to fetch events. Please try again later.",
-        });
-      });
-
-    // Render discover.hbs with results
-  } catch (error) {
-    console.error(error);
-    res.render("pages/discover", {
-      results: [],
-      message: "Failed to fetch events. Please try again later.",
-    });
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  console.log(req.session);
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect("/login");
   }
+  next();
+};
+
+// Authentication Required
+app.use(auth);
+
+app.get("/newsSearch", auth, async (req, res) => {
+    const axios = require("axios");
+
+async function getLiveNews() {
+  try {
+    const response = await axios.get("https://serpapi.com/search.json", {
+        params: {
+        q: "Live news",
+        location: "Austin, Texas, United States",
+        hl: "en",
+        gl: "us",
+        api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e"
+      }
+    });
+
+    // Log the local news section from the response
+    console.log(response.data.local_news);
+  } catch (error) {
+    console.error("Error fetching news:", error);
+  }
+}
+
+// Call the function
+getLiveNews();
+});
+
+app.get("/newsMap", (req, res) => {
+  
+  const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
+
+  res.render("pages/newsMap", { mapAPI });
 });
 
 app.get("/logout", (req, res) => {
@@ -211,7 +191,7 @@ app.get("/logout", (req, res) => {
   res.render("pages/logout");
 });
 
-app.get("/savedArticles", (req, res) => {
+app.get("/savedarticles", (req, res) => {
   const mockData = [
     {
       imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",

@@ -1,14 +1,30 @@
-<form method="POST" action="/login" class="container">
-  <h1>Login</h1>
-  <div class="form-group">
-    <label for="username">Username</label>
-    <input type="username" class="form-control" id="username" aria-describedby="emailHelp" name="username" placeholder="Enter username">
+{{>message}}
+<div class="grid grid-cols-2 bg-gray-200">
+  <div class="h-screen px-20">
+    <h1 class="text-center text-blue-900 pt-20">Welcome Back!</h1>
+    <p class="text-center pb-4">Enter your details to sign into your account.</p>
+
+    <div class="bg-gray-50 rounded p-8">
+      <form method="POST" action="/login"
+        class="container">
+        <div class="form-group pb-2">
+          <label for="username">Username</label>
+          <input type="username" class="form-control" id="username" aria-describedby="emailHelp" name="username"
+            placeholder="Username">
+        </div>
+        <div class="form-group pb-4">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+        </div>
+          <button type="submit" class="btn btn-primary w-96">Login</button>
+        <p class="pt-2 text-center">Don't have an account? <a href="/register">Create an account!</a></p>
+      </form>
+    </div>
   </div>
 
-  <div class="form-group pb-2">
-    <label for="password">Password</label>
-    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+  <div class="p-2">
+    <img src="https://cdn.pixabay.com/photo/2024/07/06/04/27/map-8875911_1280.png" class="mx-auto center w-4/6 bg-stone-100 mt-8 mb-2" alt="login image">
+    <p class="text-center p-2 bg-gray-50 rounded text-blue-900">Curious about what's happening in the world? Our application allows users to drop pins around the world to tell them the local news at that specific location. 
+      WhatsHappenin brings the news to you based on your location of interest whether out of research for a particular area or out of simple curiosity.</p>
   </div>
-<p>Or would you like to <a href="/register">register?</a></p>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</div>
