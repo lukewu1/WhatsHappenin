@@ -179,6 +179,13 @@ async function getLiveNews() {
 getLiveNews();
 });
 
+app.get("/newsMap", (req, res) => {
+  
+  const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
+
+  res.render("pages/newsMap", { mapAPI });
+});
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");

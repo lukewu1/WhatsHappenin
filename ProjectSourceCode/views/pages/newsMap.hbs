@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>Simple Marker</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script>
+      let marker = null;
+
+      function initMap() {
+        const mapCenter = { lat: 40, lng: -100 };
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 4,
+          center: mapCenter,
+        });
+
+        map.addListener("click", (event) => {
+          addMaker(event.latLng, map);
+          getCity(event.latLng);
+        });
+      }
+      function addMaker(location, map) {
+        if (marker) {
+           marker.setMap(null);
+        }
+       
+        marker = new google.maps.Marker({ 
+          position: location, 
+          map: map 
+        });
+      }
+
+      function getCity(latLng) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({location: latLng}, (results, status) => {
+          if (status === "OK" && results[0]) {
+            let city = null;
+            for(const component of results[0].address_components) {
+              if(component.types.includes("locality")) {
+                city = component.long_name;
+              }
+            }
+
+            if(city) {
+              console.log("City: ", city);
+            } else {
+              console.log("No city");
+            }
+          } else {
+            console.log("Error")
+          }
+        });
+      } 
+
+    </script>
+
+    <script async src="{{mapAPI}}&callback=initMap"></script>
+  </head>
+  <body>
+    <div id="map" style="height: 500px; width: 100%"></div>
+  </body>
+</html>
