@@ -96,27 +96,30 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-app.post("/login", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+app.post('/login', async (req, res) => {
+  const query = 'SELECT * FROM users WHERE username = $1';
+  //pause execution until query runs fully
+  const user = await db.oneOrNone(query, [req.body.username]);
 
-  const query = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-
-  db.any(query, [username])
-    .then(async (data) => {
-      const match = await bcrypt.compare(password, data[0].password);
-      if (match) {
-        req.session.user = username;
+  //if we found a user we can log them in
+  if(user){
+    //pause execution until comparing the encrypted passwords runs fully
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match) //passwords match
+      {
+        //save user details in session like in lab 7
+        req.session.user = user;
         req.session.save();
-        res.redirect("/discover");
-      } else {
-        res.redirect("/register");
+        res.redirect('/discover');
+      } //no match
+      else
+      {
+        res.render('pages/login', {message: "Incorrect username or password."});
       }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+  }
+  else{ //user not found
+    res.redirect('/register');
+  }
 });
 
 app.get("/register", (req, res) => {
