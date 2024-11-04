@@ -8,8 +8,8 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS comments;
 CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY NOT NULL,
-    username VARCHAR(50),
-    comment VARCHAR(200)
+    username VARCHAR(50) NOT NULL,
+    comment VARCHAR(200) NOT NULL
 );
 
 DROP TABLE IF EXISTS users_to_comments;

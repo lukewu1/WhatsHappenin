@@ -96,36 +96,27 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-app.get('/register', (req, res) => {
-  res.render('pages/register');
-});
+app.post('/login', async (req, res) => {
+  //hash the password using bcrypt library
+  const query = 'SELECT * FROM users WHERE username = $1';
+  const user = await db.oneOrNone(query, [req.body.username]);
 
-app.post('/register', async (req, res) => {
-  if(req.body.password != req.body.confirmpassword){
-    res.render('pages/register', {message: "Passwords didn't match."});
-  }
-  else
-  {
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const check_query = 'SELECT * FROM users WHERE username = $1 LIMIT 1';
-    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
-  
-    user_exists = await db.oneOrNone(check_query, [req.body.username]);
-
-    if(user_exists)
-    {
-      res.render('pages/login');
-    }
-    else{
-      db.one(insert_query, [req.body.username, hash])
-      .then(function (data){
-        res.redirect('/discover');
-      })
-      .catch(function(err)
+  if(user){
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match)
       {
-        res.redirect('/register');
-      })
-    }
+        //save user details in session like in lab 7
+        req.session.user = user;
+        req.session.save();
+        res.redirect('/discover');
+      }
+      else
+      {
+        res.render('pages/login', {message: "Incorrect username or password."});
+      }
+  }
+  else{
+    res.redirect('/register');
   }
 });
 
@@ -158,6 +149,10 @@ getLiveNews();
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");
+});
+
+app.get("/savedpages", (req, res) => {
+  res.render("pages/savedarticles");
 });
 // *****************************************************
 // <!-- Section 5 : Start Server-->
