@@ -96,62 +96,32 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-app.post("/login", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+app.post('/login', async (req, res) => {
+  //hash the password using bcrypt library
+  const query = 'SELECT * FROM users WHERE username = $1';
+  const user = await db.oneOrNone(query, [req.body.username]);
 
-  const query = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-
-  db.any(query, [username])
-    .then(async (data) => {
-      const match = await bcrypt.compare(password, data[0].password);
-      if (match) {
-        req.session.user = username;
+  if(user){
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match)
+      {
+        //save user details in session like in lab 7
+        req.session.user = user;
         req.session.save();
-        res.redirect("/discover");
-      } else {
-        res.redirect("/register");
+        res.redirect('/discover');
       }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+      else
+      {
+        res.render('pages/login', {message: "Incorrect username or password."});
+      }
+  }
+  else{
+    res.redirect('/register');
+  }
 });
 
 app.get("/register", (req, res) => {
   res.render("pages/register");
-});
-
-app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
-  const username = req.body.username;
-  const hash = await bcrypt.hash(req.body.password, 10);
-
-  // To-DO: Insert username and hashed password into the 'users' table
-  const select = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-  db.any(select, [username])
-    .then((data) => {
-      if (data[0]) {
-        res.redirect("/login");
-      } else {
-        const insert = `INSERT INTO users (username, password) VALUES ($1, $2);`;
-        db.none(insert, [username, hash])
-          .then((data) => {
-            req.session.user = username;
-            req.session.save();
-            res.redirect("/discover");
-          })
-          .catch(function (err) {
-            console.log("Error registering user: ", err);
-            res.redirect("/register");
-          });
-      }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
 });
 
 app.get("/newsSearch", auth, async (req, res) => {
