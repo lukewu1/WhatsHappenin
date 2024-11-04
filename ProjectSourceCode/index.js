@@ -124,6 +124,35 @@ app.get("/register", (req, res) => {
   res.render("pages/register");
 });
 
+app.post('/register', async (req, res) => {
+  if(req.body.password != req.body.confirmpassword){
+    res.render('pages/register', {message: "Passwords didn't match."});
+  }
+  else
+  {
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const check_query = 'SELECT * FROM users WHERE username = $1 LIMIT 1';
+    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
+
+    user_exists = await db.oneOrNone(check_query, [req.body.username]);
+
+    if(user_exists)
+    {
+      res.render('pages/login');
+    }
+    else{
+      db.one(insert_query, [req.body.username, hash])
+      .then(function (data){
+        res.redirect('/discover');
+      })
+      .catch(function(err)
+      {
+        res.redirect('/register');
+      })
+    }
+  }
+});
+
 app.get("/newsSearch", auth, async (req, res) => {
     const axios = require("axios");
 
