@@ -116,8 +116,20 @@ app.get("/register", (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
+  const isTest = req.query.test === 'true';
+
   if(req.body.password != req.body.confirmpassword){
-    res.render('pages/register', {message: "Passwords didn't match."});
+    if (isTest) {
+      return res.status(400).json({
+        status: 'Failed',
+        message: 'Passwords do not match',
+      });
+    } else {
+      return res.render('pages/register', {
+        status: 400,
+        message: 'Passwords do not match',
+      });
+    }
   }
   else
   {
@@ -129,16 +141,42 @@ app.post('/register', async (req, res) => {
 
     if(user_exists)
     {
-      res.render('pages/login');
+      if (isTest) {
+        return res.status(200).json({
+          message: 'User exists, please login',
+        });
+      } else {
+        return res.render('pages/login', { message: 'User exists, please login' });
+      }
     }
     else{
       db.one(insert_query, [req.body.username, hash])
       .then(function (data){
-        res.redirect('/discover');
+        if (isTest) {
+          return res.status(200).json({
+            status: 'Success',
+            data: data,
+            message: 'Success',
+          });
+        } else {
+          return res.redirect('/newsMap');
+        }
       })
       .catch(function(err)
       {
-        res.redirect('/register');
+        if (isTest) {
+          return res.status(400).json({
+            status: 'Failed',
+            data: err,
+            message: 'Invalid Input',
+          });
+        } else {
+          return res.render('pages/register', {
+            status: 400,
+            message: 'Invalid Input',
+            error: err,
+          });
+        }
       })
     }
   }
