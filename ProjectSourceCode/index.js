@@ -70,6 +70,16 @@ app.use(
   })
 );
 
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  console.log(req.session);
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect("/login");
+  }
+  next();
+};
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -174,6 +184,8 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");
 });
+
+
 
 app.get("/savedarticles", (req, res) => {
   const mockData = [
