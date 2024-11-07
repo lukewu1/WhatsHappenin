@@ -131,18 +131,14 @@ app.post('/register', async (req, res) => {
       });
     }
   }
-  else
-  {
-    const hash = await bcrypt.hash(req.body.password, 10);
+  else{
     const check_query = 'SELECT * FROM users WHERE username = $1 LIMIT 1';
-    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
 
     user_exists = await db.oneOrNone(check_query, [req.body.username]);
 
-    if(user_exists)
-    {
+    if(user_exists){
       if (isTest) {
-        return res.status(200).json({
+        return res.status(400).json({
           message: 'User exists, please login',
         });
       } else {
@@ -150,34 +146,33 @@ app.post('/register', async (req, res) => {
       }
     }
     else{
-      db.one(insert_query, [req.body.username, hash])
-      .then(function (data){
-        if (isTest) {
-          return res.status(200).json({
-            status: 'Success',
-            data: data,
-            message: 'Success',
-          });
-        } else {
-          return res.redirect('/newsMap');
-        }
-      })
-      .catch(function(err)
-      {
+      const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
+      try{
+        const hash = await bcrypt.hash(req.body.password, 10);
+        db.one(insert_query, [req.body.username, hash])
+        .then(function (data){
+          if (isTest) {
+            return res.status(200).json({
+              data: data,
+              message: 'Success',
+            });
+          } 
+          else{
+            return res.redirect('/newsMap');
+          }
+        })
+      }
+      catch(err){
         if (isTest) {
           return res.status(400).json({
-            status: 'Failed',
             data: err,
             message: 'Invalid Input',
           });
-        } else {
-          return res.render('pages/register', {
-            status: 400,
-            message: 'Invalid Input',
-            error: err,
-          });
         }
-      })
+        else{
+          return res.redirect('/register', {message: 'Invalid Input'});
+        }
+      }
     }
   }
 });

@@ -47,10 +47,10 @@ it('negative : /register', done => {
     chai
     .request(server)
     .post('/register?test=true')
-    .send({username: 'bob', password: 'test123'})
+    .send({username: 'bobtest', password: 23, confirmpassword: 23})
     .end((err, res) => {
         expect(res).to.have.status(400);
-        expect(res.body.message).to.equals('Passwords do not match');
+        expect(res.body.message).to.equals('Invalid Input');
         done();
     });
 });
