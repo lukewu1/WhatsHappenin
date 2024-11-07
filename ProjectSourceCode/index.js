@@ -70,24 +70,15 @@ app.use(
   })
 );
 
-// Authentication Middleware.
-const auth = (req, res, next) => {
-  console.log(req.session);
-  if (!req.session.user) {
-    // Default to login page.
-    return res.redirect("/login");
-  }
-  next();
-};
-
-// Authentication Required
-// app.use(auth);
-
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 
 // TODO - Include your API routes here
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
@@ -96,62 +87,61 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-app.post("/login", async (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+app.post('/login', async (req, res) => {
+  //hash the password using bcrypt library
+  const query = 'SELECT * FROM users WHERE username = $1';
+  const user = await db.oneOrNone(query, [req.body.username]);
 
-  const query = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-
-  db.any(query, [username])
-    .then(async (data) => {
-      const match = await bcrypt.compare(password, data[0].password);
-      if (match) {
-        req.session.user = username;
+  if(user){
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match)
+      {
+        //save user details in session like in lab 7
+        req.session.user = user;
         req.session.save();
-        res.redirect("/discover");
-      } else {
-        res.redirect("/register");
+        res.redirect('/discover');
       }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+      else
+      {
+        res.render('pages/login', {message: "Incorrect username or password."});
+      }
+  }
+  else{
+    res.redirect('/register');
+  }
 });
 
 app.get("/register", (req, res) => {
   res.render("pages/register");
 });
 
-app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
-  const username = req.body.username;
-  const hash = await bcrypt.hash(req.body.password, 10);
+app.post('/register', async (req, res) => {
+  if(req.body.password != req.body.confirmpassword){
+    res.render('pages/register', {message: "Passwords didn't match."});
+  }
+  else
+  {
+    const hash = await bcrypt.hash(req.body.password, 10);
+    const check_query = 'SELECT * FROM users WHERE username = $1 LIMIT 1';
+    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
 
-  // To-DO: Insert username and hashed password into the 'users' table
-  const select = `SELECT * FROM users WHERE username = $1 LIMIT 1;`;
-  db.any(select, [username])
-    .then((data) => {
-      if (data[0]) {
-        res.redirect("/login");
-      } else {
-        const insert = `INSERT INTO users (username, password) VALUES ($1, $2);`;
-        db.none(insert, [username, hash])
-          .then((data) => {
-            req.session.user = username;
-            req.session.save();
-            res.redirect("/discover");
-          })
-          .catch(function (err) {
-            console.log("Error registering user: ", err);
-            res.redirect("/register");
-          });
-      }
-    })
-    .catch(function (err) {
-      console.log("Error registering user: ", err);
-      res.redirect("/register");
-    });
+    user_exists = await db.oneOrNone(check_query, [req.body.username]);
+
+    if(user_exists)
+    {
+      res.render('pages/login');
+    }
+    else{
+      db.one(insert_query, [req.body.username, hash])
+      .then(function (data){
+        res.redirect('/discover');
+      })
+      .catch(function(err)
+      {
+        res.redirect('/register');
+      })
+    }
+  }
 });
 
 app.get("/newsSearch", auth, (req, res) => {
@@ -163,6 +153,21 @@ app.post("/newsSearch", auth, async (req, res) => {
 
   
   const location = req.body.location || "New York, New York, United States"; 
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  console.log(req.session);
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect("/login");
+  }
+  next();
+};
+
+// Authentication Required
+app.use(auth);
+
+app.get("/newsSearch", auth, async (req, res) => {
+    const axios = require("axios");
 
   try {
     const response = await axios.get("https://serpapi.com/search.json", {
@@ -217,14 +222,44 @@ app.get("/Dummy", auth, async (req, res) => {
   }
 });
 
+app.get("/newsMap", (req, res) => {
+  
+  const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
+
+  res.render("pages/newsMap", { mapAPI });
+});
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.render("pages/logout");
 });
+
+app.get("/savedarticles", (req, res) => {
+  const mockData = [
+    {
+      imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+      headline: "Headline Test 1",
+      date: "2021-09-01",
+      author: "Myung Test",
+    },
+    {
+      imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+      headline: "Headline Test 2",
+      date: "2022-10-01",
+      author: "Jeno Test",
+    },
+    {
+      imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+      headline: "Headline Test 3",
+      date: "2016-05-21",
+      author: "Lomon Test",
+    },
+  ];
+  res.render("pages/savedarticles", { articles: mockData });
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log("Server is listening on port 3000");
