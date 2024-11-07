@@ -154,31 +154,69 @@ app.post("/register", async (req, res) => {
     });
 });
 
-app.get("/newsSearch", auth, async (req, res) => {
-    const axios = require("axios");
+app.get("/newsSearch", auth, (req, res) => {
+  res.render("pages/newsSearch", { local_news: [], location: "", message: "" });
+});
 
-async function getLiveNews() {
+app.post("/newsSearch", auth, async (req, res) => {
+  const axios = require("axios");
+
+  
+  const location = req.body.location || "New York, New York, United States"; 
+
   try {
     const response = await axios.get("https://serpapi.com/search.json", {
-        params: {
+      params: {
         q: "Live news",
-        location: "Austin, Texas, United States",
+        location: location,
+        hl: "en",
+        gl: "us",
+        api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e" 
+      }
+    });
+
+    
+    const local_news = response.data.organic_results || response.data.top_stories || [];
+    
+    res.render("pages/newsSearch", { local_news, location, message: "" });
+
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
+  }
+});
+
+
+
+
+app.get("/Dummy", auth, async (req, res) => {
+  const axios = require("axios");
+  const location = "Austin, Texas, United States";
+
+  try {
+    const response = await axios.get("https://serpapi.com/search.json", {
+      params: {
+        q: "Live news",
+        location: location,
         hl: "en",
         gl: "us",
         api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e"
       }
     });
 
-    // Log the local news section from the response
-    console.log(response.data.local_news);
+    //console.log("Full API Response:", JSON.stringify(response.data, null, 2)); 
+    
+    const local_news = response.data.organic_results || response.data.top_stories || [];
+    
+    //console.log("Local News:", local_news); 
+
+    res.render("pages/Dummy", { local_news, location, message: "" });
   } catch (error) {
     console.error("Error fetching news:", error);
+    res.render("pages/Dummy", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
   }
-}
-
-// Call the function
-getLiveNews();
 });
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
