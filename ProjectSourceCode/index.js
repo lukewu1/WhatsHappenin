@@ -146,7 +146,6 @@ app.post('/register', async (req, res) => {
 
 // Authentication Middleware.
 const auth = (req, res, next) => {
-  console.log(req.session);
   if (!req.session.user) {
     // Default to login page.
     return res.redirect("/login");
@@ -205,12 +204,9 @@ app.get("/Dummy", auth, async (req, res) => {
         api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e"
       }
     });
-
-    //console.log("Full API Response:", JSON.stringify(response.data, null, 2)); 
     
     const local_news = response.data.organic_results || response.data.top_stories || [];
     
-    //console.log("Local News:", local_news); 
 
     res.render("pages/Dummy", { local_news, location, message: "" });
   } catch (error) {
