@@ -158,9 +158,6 @@ const auth = (req, res, next) => {
 // Authentication Required
 app.use(auth);
 
-app.get("/newsSearch", auth, async (req, res) => {
-    const axios = require("axios");
-
 app.get("/newsSearch", auth, (req, res) => {
   res.render("pages/newsSearch", { local_news: [], location: "", message: "" });
 });
