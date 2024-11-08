@@ -171,7 +171,7 @@ app.post("/newsSearch", auth, async (req, res) => {
         location: location,
         hl: "en",
         gl: "us",
-        api_key: "2639dc1ea4d0ea48dbc78d2741a887f653723d0e8bb286c2380c2861503e721e" 
+        api_key: `${process.env.NEWS_API_KEY}` 
       }
     });
 
