@@ -144,7 +144,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
 // Authentication Middleware.
 const auth = (req, res, next) => {
   console.log(req.session);
