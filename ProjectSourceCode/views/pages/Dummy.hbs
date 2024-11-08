@@ -1,0 +1,25 @@
+
+<h3>Showing Local News for Austin, Texas</h3>
+
+<!-- Display an error message if fetching news fails -->
+{{#if message}}
+  <div class="alert alert-danger">{{message}}</div>
+{{/if}}
+
+
+<div class="row">
+  {{#each local_news}}
+    <div class="col-md-4 mb-3">
+      <div class="card">
+        <img class="card-img-top" src="{{this.image}}" alt="{{this.title}}">
+        <div class="card-body">
+          <h5 class="card-title">{{this.title}}</h5>
+          <p class="card-text">{{this.snippet}}</p>
+          <p class="card-text">Source: {{this.source}}</p>
+          <p class="card-text">Date: {{this.date}}</p>
+          <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</div>
