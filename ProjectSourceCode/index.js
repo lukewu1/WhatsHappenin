@@ -270,15 +270,6 @@ app.get("/Dummy", auth, async (req, res) => {
    });
   
    const local_news = response.data.organic_results || response.data.top_stories || [];
-  
-
-
-  //  //console.log("Full API Response:", JSON.stringify(response.data, null, 2));
-  
-  //  const local_news = response.data.organic_results || response.data.top_stories || [];
-  
-  //  //console.log("Local News:", local_news);
-
 
    res.render("pages/Dummy", { local_news, location, message: "" });
  } catch (error) {
@@ -305,28 +296,82 @@ app.get("/logout", (req, res) => {
 
 
 app.get("/savedArticles", (req, res) => {
+  const get_comments = 'SELECT * FROM COMMENTS';
+  
+  db.any(get_comments)
+  .then(function (data){
+    const comments = data;
+
  const mockData = [
    {
      imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
      headline: "Headline Test 1",
      date: "2021-09-01",
      author: "Myung Test",
+     comments: comments,
    },
    {
      imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
      headline: "Headline Test 2",
      date: "2022-10-01",
      author: "Jeno Test",
+     comments: comments,
    },
    {
      imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
      headline: "Headline Test 3",
      date: "2016-05-21",
      author: "Lomon Test",
+     comments: comments,
    },
  ];
- res.render("pages/savedarticles", { articles: mockData });
+ res.render("pages/savedArticles", { articles: mockData });
+})
+})
+
+app.post("/savedArticles", async (req, res) => {
+  const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
+
+  const comment_added = await db.one(add_comment, [req.session.user.username, req.body.comment]);
+
+  if(comment_added){
+    db.any('SELECT * FROM COMMENTS')
+    .then(function (data){
+      const comments = data;
+  
+   const mockData = [
+     {
+       imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+       headline: "Headline Test 1",
+       date: "2021-09-01",
+       author: "Myung Test",
+       comments: comments,
+     },
+     {
+       imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+       headline: "Headline Test 2",
+       date: "2022-10-01",
+       author: "Jeno Test",
+       comments: comments,
+     },
+     {
+       imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+       headline: "Headline Test 3",
+       date: "2016-05-21",
+       author: "Lomon Test",
+       comments: comments,
+     },
+   ];
+   res.render("pages/savedArticles", { articles: mockData , message: "Comment successfully added to article."});
+  })
+}
 });
+
+app.get("/profile", (req, res) => {
+  res.render("pages/profile");
+ });
+
+//route for getting data from courses dt and rendering the comment modal with it
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************

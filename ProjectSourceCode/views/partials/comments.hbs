@@ -1,0 +1,39 @@
+<div class="modal" tabindex="-1" id="comments">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/savedArticles">
+                    <!--insertion of comments for that article above the comment textbok-->
+                    <div>
+                        <table>
+                            {{#each comments}}
+                        <tr>
+                            <td>{{username}}</td>
+                            <td>{{comment}}</td>
+                        </tr>
+                            {{/each}}
+                        </table>
+                    </div>
+
+                    <!--textbox for comments-->
+                    <div class="mb-3">
+                        <label for="comment" class="form-label"
+                            placeholder="Start typing your comment here"></label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                    </div>
+                    <!---buttons-->
+                    <button id="close_button" class="btn btn-primary" type="button" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button class="btn btn-primary" type="submit">
+                        Comment
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
