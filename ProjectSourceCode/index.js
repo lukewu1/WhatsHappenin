@@ -273,11 +273,11 @@ app.get("/Dummy", auth, async (req, res) => {
   
 
 
-   //console.log("Full API Response:", JSON.stringify(response.data, null, 2));
+  //  //console.log("Full API Response:", JSON.stringify(response.data, null, 2));
   
-   const local_news = response.data.organic_results || response.data.top_stories || [];
+  //  const local_news = response.data.organic_results || response.data.top_stories || [];
   
-   //console.log("Local News:", local_news);
+  //  //console.log("Local News:", local_news);
 
 
    res.render("pages/Dummy", { local_news, location, message: "" });

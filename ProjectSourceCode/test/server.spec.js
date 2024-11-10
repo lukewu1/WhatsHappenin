@@ -28,5 +28,31 @@ describe('Server!', () => {
 });
 
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
+describe('Testing Add User API', () => {
+  it('positive : /register', done => {
+    chai
+      .request(server)
+      .post('/register?test=true')
+      .send({username: 'bob', password: 'test123', confirmpassword: 'test123'})
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body.message).to.equals('Success');
+        done();
+      });
+  });
+});
 
+describe('Testing Add User API', () => {
+it('negative : /register', done => {
+  chai
+  .request(server)
+  .post('/register?test=true')
+  .send({username: 'bobtest', password: 23, confirmpassword: 23})
+  .end((err, res) => {
+      expect(res).to.have.status(400);
+      expect(res.body.message).to.equals('Invalid Input');
+      done();
+  });
+});
+});
 // ********************************************************************************
