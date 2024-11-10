@@ -1,39 +1,59 @@
-<div class="modal" tabindex="-1" id="comments">
-    <div class="modal-dialog">
+<div class="modal fade" tabindex="-1" id="comments">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
+                <h5 class="modal-title">Comments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form method="POST" action="/savedArticles">
-                    <!--insertion of comments for that article above the comment textbok-->
-                    <div>
-                        <table>
-                            {{#each comments}}
-                        <tr>
-                            <td>{{username}}</td>
-                            <td>{{comment}}</td>
-                        </tr>
-                            {{/each}}
+                    <!--insertion of comments for that article above the comment textbox-->
+                    <div class="mb-3" id="comment-box">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each comments}}
+                                <tr>
+                                    <td>{{username}}</td>
+                                    <td>{{comment}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
                         </table>
                     </div>
 
                     <!--textbox for comments-->
-                    <div class="mb-3">
-                        <label for="comment" class="form-label"
-                            placeholder="Start typing your comment here"></label>
-                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                    <div class="mb-3 d-flex">
+                        <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Start typing your comment here" required></textarea>
+                        <button class="btn btn-primary" type="submit">
+                            Comment
+                        </button>
                     </div>
                     <!---buttons-->
-                    <button id="close_button" class="btn btn-primary" type="button" data-bs-dismiss="modal">
-                        Close
-                    </button>
-                    <button class="btn btn-primary" type="submit">
-                        Comment
-                    </button>
+                    
                 </form>
             </div>
-            <div class="modal-footer"></div>
         </div>
     </div>
 </div>
+
+<style>
+    #comment-box {
+        border: 1px solid #ddd;
+        padding: 1rem;
+        width: 100%;
+        max-width: 800px;
+        border-radius: 5px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+        max-height: 400px; /* Set a max height for the scroll box */
+        overflow-y: auto; /* Enable vertical scrolling */
+    }
+
+
+</style>
