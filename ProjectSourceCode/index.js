@@ -376,6 +376,10 @@ app.post("/savedArticles", async (req, res) => {
 }
 });
 
+app.get("/profile", (req, res) => {
+  res.render("pages/profile");
+ });
+
 //route for getting data from courses dt and rendering the comment modal with it
 // *****************************************************
 // <!-- Section 5 : Start Server-->
