@@ -136,7 +136,6 @@ app.get("/register", (req, res) => {
 app.post('/register', async (req, res) => {
  const isTest = req.query.test;
 
-
  if(req.body.password != req.body.confirmpassword){
    if (isTest) {
      return res.status(400).json({
@@ -164,33 +163,40 @@ app.post('/register', async (req, res) => {
      }
    }
    else{
-     const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
-     try{
-       const hash = await bcrypt.hash(req.body.password, 10);
-       db.one(insert_query, [req.body.username, hash])
-       .then(function (data){
-         if (isTest) {
-           return res.status(200).json({
-             data: data,
-             message: 'Success',
-           });
-         }
-         else{
-           return res.redirect('/newsMap');
-         }
-       })
-     }
-     catch(err){
-       if (isTest) {
-         return res.status(400).json({
-           data: err,
-           message: 'Invalid Input',
-         });
-       }
-       else{
-         return res.redirect('/register', {invalid_input: true});
-       }
-     }
+    if(req.body.password.length > 6){
+      const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
+      try{
+        const hash = await bcrypt.hash(req.body.password, 10);
+        const user = db.one(insert_query, [req.body.username, hash])
+        .then(function (data){
+          if (isTest) {
+            return res.status(200).json({
+              data: data,
+              message: 'Success',
+            });
+          }
+          else{
+            req.session.user = user;
+            req.session.save();
+            return res.redirect('/newsMap');
+          }
+        })
+      }
+      catch(err){
+        if (isTest) {
+          return res.status(400).json({
+            data: err,
+            message: 'Invalid Input',
+          });
+        }
+        else{
+          return res.render('pages/register', {invalid_input: true});
+        }
+      }
+    }
+    else{
+      return res.render('pages/register', {invalid_passlen: true});
+    }
    }
  }
 });
