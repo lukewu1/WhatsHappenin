@@ -7,53 +7,35 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="/savedArticles">
-                    <!--insertion of comments for that article above the comment textbox-->
-                    <div class="mb-3" id="comment-box">
-                        <table class="table">
+                    <!-- Comments display section -->
+                    <div id="comment-box" class="border border-gray-300 p-4 w-full rounded-lg shadow mb-4 max-h-96 overflow-y-auto">
+                        <table class="table-auto w-full">
                             <thead>
                                 <tr>
-                                    <th scope="col">Username</th>
-                                    <th scope="col">Comment</th>
+                                    <th class="text-left font-semibold">Username</th>
+                                    <th class="text-left font-semibold">Comment</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {{#each comments}}
                                 <tr>
-                                    <td>{{username}}</td>
-                                    <td>{{comment}}</td>
+                                    <td class="py-2">{{username}}</td>
+                                    <td class="py-2">{{comment}}</td>
                                 </tr>
                                 {{/each}}
                             </tbody>
                         </table>
                     </div>
 
-                    <!--textbox for comments-->
-                    <div class="mb-3 d-flex">
-                        <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Start typing your comment here" required></textarea>
-                        <button class="btn btn-primary" type="submit">
+                    <!-- Comment input section -->
+                    <div class="mb-3 flex space-x-3">
+                        <textarea class="form-control flex-grow border border-gray-300 rounded-lg p-2 resize-none focus:outline-none focus:border-blue-500" id="comment" name="comment" rows="3" placeholder="Start typing your comment here" required></textarea>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">
                             Comment
                         </button>
                     </div>
-                    <!---buttons-->
-                    
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    #comment-box {
-        border: 1px solid #ddd;
-        padding: 1rem;
-        width: 100%;
-        max-width: 800px;
-        border-radius: 5px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
-        max-height: 400px; /* Set a max height for the scroll box */
-        overflow-y: auto; /* Enable vertical scrolling */
-    }
-
-
-</style>
