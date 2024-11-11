@@ -347,7 +347,7 @@ app.get("/savedArticles", (req, res) => {
      comments: comments,
    },
  ];
- res.render("pages/savedArticles", { articles: mockData });
+ res.render("pages/savedarticles", { articles: mockData });
 })
 })
 
@@ -384,7 +384,7 @@ app.post("/savedArticles", async (req, res) => {
        comments: comments,
      },
    ];
-   res.render("pages/savedArticles", { articles: mockData , message: "Comment successfully added to article."});
+   res.render("pages/savedarticles", { articles: mockData , message: "Comment successfully added to article."});
   })
 }
 });
