@@ -13,6 +13,8 @@ const bodyParser = require("body-parser");
 const session = require("express-session"); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require("bcryptjs"); //  To hash passwords
 const axios = require("axios"); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const { profile } = require("console");
+
 
 
 // *****************************************************
@@ -79,6 +81,9 @@ app.use(
    extended: true,
  })
 );
+
+//to serve static files from resources folder
+app.use('/resources', express.static('resources'));
 
 
 // *****************************************************
@@ -163,40 +168,58 @@ app.post('/register', async (req, res) => {
      }
    }
    else{
-    if(req.body.password.length > 6){
-      const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
-      try{
-        const hash = await bcrypt.hash(req.body.password, 10);
-        const user = db.one(insert_query, [req.body.username, hash])
-        .then(function (data){
-          if (isTest) {
-            return res.status(200).json({
-              data: data,
-              message: 'Success',
-            });
-          }
-          else{
-            req.session.user = user;
-            req.session.save();
-            return res.redirect('/newsMap');
-          }
-        })
-      }
-      catch(err){
+    const insert_query = 'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *';
+    try{
+      const hash = await bcrypt.hash(req.body.password, 10);
+      const user = await db.one(insert_query, [req.body.username, hash])
+      if(user){
         if (isTest) {
-          return res.status(400).json({
-            data: err,
-            message: 'Invalid Input',
+          return res.status(200).json({
+            message: 'Success',
           });
         }
         else{
-          return res.render('pages/register', {invalid_input: true});
+          req.session.user = user;
+          req.session.save();
+          return res.redirect('/newsMap');
         }
       }
+      else{
+        if (isTest) {
+          return res.status(400).json({
+            message: 'Error registering user',
+          });
+        }
+        else{
+          res.render("pages/register", {message: "Error registering user"})
+        }
+      }
+      // .then(function (data){
+      //   if (isTest) {
+      //     return res.status(200).json({
+      //       data: data,
+      //       message: 'Success',
+      //     });
+      //   }
+      //   else{
+      //     req.session.user = user;
+      //     req.session.save();
+      //     return res.redirect('/newsMap');
+      //   }
+      // })
     }
-    else{
-      return res.render('pages/register', {invalid_passlen: true});
+    catch(err){
+      if (isTest) {
+        return res.status(400).json({
+          data: err,
+          message: 'Invalid Input',
+        });
+      }
+      else{
+        return res.render('pages/register', {invalid_input: true});
+      }
     }
+
    }
  }
 });
@@ -251,13 +274,6 @@ app.post("/newsSearch", auth, async (req, res) => {
    res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
  }
 });
-
-
-
-
-
-
-
 
 app.get("/Dummy", auth, async (req, res) => {
  const axios = require("axios");
@@ -373,9 +389,25 @@ app.post("/savedArticles", async (req, res) => {
 }
 });
 
-app.get("/profile", (req, res) => {
-  res.render("pages/profile");
+app.get("/profile", async (req, res) => {
+  const user = req.session.user;
+  // LASTVAL() gets the user_id of the last inserted user
+  const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/1721460161212.jpeg', 'My name bob') RETURNING *;`;
+  const profile = await db.one(insertQuery, [user.user_id]);
+  res.render("pages/profile", {user, profile});
  });
+
+app.post('/updateUser', async function (req, res) {
+  const prevUser = req.session.user;
+  const updateQuery1 = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING * ;`;
+  const updateQuery2 = `UPDATE profiles SET profile_description = $1 WHERE user_id = $2 RETURNING *;`;
+  const profile = await db.oneOrNone(updateQuery2, [req.body.description, prevUser.user_id]);
+  // console.log(req.body.username);
+  const user = await db.oneOrNone(updateQuery1, [req.body.username, prevUser.user_id])
+  if(user){
+    res.render("pages/profile", {user, profile});
+  }
+});
 
 //route for getting data from courses dt and rendering the comment modal with it
 // *****************************************************
