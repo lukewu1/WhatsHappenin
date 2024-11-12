@@ -5,6 +5,14 @@ CREATE TABLE users (
     password CHAR(60) NOT NULL
 );
 
+DROP TABLE IF EXISTS profiles;
+CREATE TABLE profiles (
+    user_id INT NOT NULL UNIQUE,
+    profile_picture VARCHAR(50),
+    profile_description TEXT,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
 DROP TABLE IF EXISTS comments;
 CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY NOT NULL,

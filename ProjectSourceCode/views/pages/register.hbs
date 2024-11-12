@@ -14,6 +14,8 @@
  <p class="text-red-600 text-center pb-2">Passwords do not match.</p>
 {{else if invalid_input}}
  <p class="text-red-600 text-center pb-2">Invalid Input.</p>
+{{else if invalid_passlen}}
+ <p class="text-red-600 text-center pb-2">Passwords must have 6 characters at least.</p>
 {{/if}}
 <form method="POST" action="/register" class="container">
  <div class="form-group pb-2">
