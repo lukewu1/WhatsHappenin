@@ -109,27 +109,43 @@ app.get("/login", (req, res) => {
 
 app.post('/login', async (req, res) => {
  //hash the password using bcrypt library
+ const isTest = req.query.test;
  const query = 'SELECT * FROM users WHERE username = $1';
  const user = await db.oneOrNone(query, [req.body.username]);
 
-
- if(user){
-   const match = await bcrypt.compare(req.body.password, user.password);
-   if(match)
-     {
-       //save user details in session like in lab 7
-       req.session.user = user;
-       req.session.save();
-       res.redirect('/savedArticles');
-     }
-     else
-     {
-       res.render('pages/login', {error: true});
-     }
- }
- else{
-   res.render('pages/login', {error: true});
- }
+  if(user){
+    const match = await bcrypt.compare(req.body.password, user.password);
+    if(match){
+      //save user details in session like in lab 7
+      if (isTest) {
+        return res.status(200).json({
+          message: 'Success',
+      });
+      } else{
+        req.session.user = user;
+        req.session.save();
+        res.redirect('/savedArticles');
+      }
+    }
+    else{
+      if (isTest) {
+        return res.status(400).json({
+          message: 'Invalid username or password.',
+        });
+      } else{
+        res.render('pages/login', {error: true});
+      }
+    }
+  }
+  else{
+    if (isTest) {
+      return res.status(400).json({
+        message: 'Invalid username or password.',
+      });
+    } else{
+      res.render('pages/login', {error: true});
+    }
+  }
 });
 
 
@@ -194,19 +210,6 @@ app.post('/register', async (req, res) => {
           res.render("pages/register", {message: "Error registering user"})
         }
       }
-      // .then(function (data){
-      //   if (isTest) {
-      //     return res.status(200).json({
-      //       data: data,
-      //       message: 'Success',
-      //     });
-      //   }
-      //   else{
-      //     req.session.user = user;
-      //     req.session.save();
-      //     return res.redirect('/newsMap');
-      //   }
-      // })
     }
     catch(err){
       if (isTest) {
@@ -229,20 +232,17 @@ app.post('/register', async (req, res) => {
 const auth = (req, res, next) => {
  if (!req.session.user) {
    // Default to login page.
-   return res.redirect("/login");
+   return res.status(302).redirect("/login");
  }
  next();
 };
 
-
 // Authentication Required
 app.use(auth);
-
 
 app.get("/newsSearch", auth, (req, res) => {
  res.render("pages/newsSearch", { local_news: [], location: "", message: "" });
 });
-
 
 app.post("/newsSearch", auth, async (req, res) => {
  const axios = require("axios");
@@ -262,8 +262,6 @@ app.post("/newsSearch", auth, async (req, res) => {
      }
    });
 
-
-  
    const local_news = response.data.organic_results || response.data.top_stories || [];
   
    res.render("pages/newsSearch", { local_news, location, message: "" });
@@ -300,9 +298,6 @@ app.get("/Dummy", auth, async (req, res) => {
  }
 });
 
-
-
-
 app.get("/newsMap", (req, res) => {
   const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
 
@@ -310,12 +305,10 @@ app.get("/newsMap", (req, res) => {
  res.render("pages/newsMap", { mapAPI });
 });
 
-
 app.get("/logout", (req, res) => {
  req.session.destroy();
  res.render("pages/logout");
 });
-
 
 app.get("/savedArticles", (req, res) => {
   const get_comments = 'SELECT * FROM COMMENTS';
@@ -384,17 +377,46 @@ app.post("/savedArticles", async (req, res) => {
        comments: comments,
      },
    ];
-   res.render("pages/savedarticles", { articles: mockData , message: "Comment successfully added to article."});
+   res.status(200).render("pages/savedarticles", { articles: mockData , message: "Comment successfully added to article."});
   })
 }
 });
 
 app.get("/profile", async (req, res) => {
   const user = req.session.user;
-  // LASTVAL() gets the user_id of the last inserted user
-  const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/1721460161212.jpeg', 'My name bob') RETURNING *;`;
-  const profile = await db.one(insertQuery, [user.user_id]);
-  res.render("pages/profile", {user, profile});
+  const isTest = req.query.test;
+
+  console.log('test', isTest);
+
+  if(!user){
+    if(isTest){
+      return res.status(401).send('Not authenticated.');
+    }
+    else{
+      return res.render("pages/login", {message: "User not authenticated."});
+    }
+  } 
+
+  try{
+    if(isTest){
+      res.status(200).json({
+        username: req.session.user.username,
+      });
+    }
+    else{
+      const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/1721460161212.jpeg', 'My name bob') RETURNING *;`;
+      const profile = await db.one(insertQuery, [user.user_id]);
+      res.render("pages/profile", {user, profile});
+    }
+  }
+  catch(err){
+    if(isTest){
+      res.status(500).send('Internal Server Error.');
+    }
+    else{
+      res.render("pages/login", {message: "Sorry we encountered an error."});
+    }
+  }
  });
 
 app.post('/updateUser', async function (req, res) {
