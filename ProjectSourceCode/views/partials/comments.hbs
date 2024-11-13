@@ -1,0 +1,41 @@
+<div class="modal fade" tabindex="-1" id="comments">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Comments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="/savedArticles">
+                    <!-- Comments display section -->
+                    <div id="comment-box" class="border border-gray-300 p-4 w-full rounded-lg shadow mb-4 max-h-96 overflow-y-auto">
+                        <table class="table-auto w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-left font-semibold">Username</th>
+                                    <th class="text-left font-semibold">Comment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each comments}}
+                                <tr>
+                                    <td class="py-2">{{username}}</td>
+                                    <td class="py-2">{{comment}}</td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Comment input section -->
+                    <div class="mb-3 flex space-x-3">
+                        <textarea class="form-control flex-grow border border-gray-300 rounded-lg p-2 resize-none focus:outline-none focus:border-blue-500" id="comment" name="comment" rows="3" placeholder="Start typing your comment here" required></textarea>
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" type="submit">
+                            Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
