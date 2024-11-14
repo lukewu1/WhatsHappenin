@@ -271,7 +271,6 @@ app.post("/newsSearch", auth, async (req, res) => {
     console.error("Error fetching news:", error);
     res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
   }
-});
 
 
  try {
