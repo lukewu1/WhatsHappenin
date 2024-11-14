@@ -146,7 +146,6 @@ app.post('/register', async (req, res) => {
 
 // Authentication Middleware.
 const auth = (req, res, next) => {
-  console.log(req.session);
   if (!req.session.user) {
     // Default to login page.
     return res.redirect("/login");
