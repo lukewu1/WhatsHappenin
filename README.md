@@ -23,14 +23,19 @@ Curious about what's happening in the world? Our application allows users to dro
 * Docker
 
 ## Prerequisites to Run Application
-Standard web browser
-
-## Instructions To Run the Application
-On the world map you will select a country and a date and you will recieve the most relevant news for this place and time.
+* Standard web browser
+* Create .env file within ProjectSourceCode folder with API keys
 
 ## Instructions To Run the Application Locally 
+To run the app locally, ensure you have docker correctly installed.
+1. Ensure you are in the directory of root code `WhatsHappenin/ProjectSourceCode`
+2. Run the terminal command: ```docker compose up```
+3. You can now visit the application at: http://localhost:3000/login
+
+To shut down the application:
+1. Run the terminal command: `docker compose down` or `docker compose down -v` (if you want to also remove the related volumes)
+
 
 ## How to Run Tests
-
 
 ## Link to Deployed Application:
