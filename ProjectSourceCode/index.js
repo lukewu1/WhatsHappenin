@@ -256,15 +256,13 @@ app.post("/newsSearch", auth, async (req, res) => {
     // Fetch local news from SerpAPI
     const response = await axios.get("https://serpapi.com/search.json", {
       params: {
-        q: "Live news",
-        location: location,  
-        hl: "en",
-        gl: "us",
+        engine: "google_news",
+        q: location,
         api_key: process.env.NEWS_API_KEY
       }
     });
 
-    const local_news = response.data.organic_results || response.data.top_stories || [];
+    const local_news = response.data.top_stories || response.data.news_results || [];
 
     res.render("pages/newsSearch", { local_news, location, message: "" });
   } catch (error) {
@@ -272,28 +270,6 @@ app.post("/newsSearch", auth, async (req, res) => {
     res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
   }
 
-
- try {
-   const response = await axios.get("https://serpapi.com/search.json", {
-     params: {
-       q: "Live news",
-       location: location,
-       hl: "en",
-       gl: "us",
-       api_key: `${process.env.NEWS_API_KEY}`
-     }
-   });
-
-   const local_news = response.data.organic_results || response.data.top_stories || [];
-  
-   res.render("pages/newsSearch", { local_news, location, message: "" });
-
-
-
- } catch (error) {
-   console.error("Error fetching news:", error);
-   res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
- }
 });
 
 
