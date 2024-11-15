@@ -37,21 +37,36 @@
         geocoder.geocode({ location: latLng }, (results, status) => {
           if (status === "OK" && results[0]) {
             let city = null;
+            let state = null;
+            let country = null;
+
             for (const component of results[0].address_components) {
               if (component.types.includes("locality")) {
                 city = component.long_name;
               }
+              if (component.types.includes("administrative_area_level_1")) {
+                state = component.short_name;
+              }
+              if (component.types.includes("country")) {
+                country = component.long_name;
+              }
+            }
+
+            let locationString = city;
+            if (state) {
+              locationString += `, ${state}`;
+            } else if (country) {
+              locationString += `, ${country}`;
             }
 
             if (city) {
-              console.log("City: ", city);
+              console.log("Location: ", locationString);
 
-             //makes the locatin of the what was clicked on the location being passed in the search bar
-              document.getElementById("location").value = city;
+              // Sets the location of what was clicked on in the search bar
+              document.getElementById("location").value = locationString;
 
-              // submit the form with the selected location
+              // Submit the form with the selected location
               document.getElementById("locationForm").submit();
-              
             } else {
               console.log("No city found");
             }
