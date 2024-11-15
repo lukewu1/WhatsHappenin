@@ -9,17 +9,6 @@
   {{/if}}
 
   {{#each local_news}}
-    <div class="col-md-4 mb-3">
-      <div class="card">
-        <img class="card-img-top" src="{{this.thumbnail}}" alt="{{this.title}}"> <!-- Update to use thumbnail -->
-        <div class="card-body">
-          <h5 class="card-title">{{this.title}}</h5>
-          <p class="card-text">{{this.snippet}}</p>
-          <p class="card-text">Source: {{this.source}}</p>
-          <p class="card-text">Date: {{this.date}}</p>
-          <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
-        </div>
-      </div>
-    </div>
+    {{> articlecardMapSearch}}
   {{/each}}
 </div>

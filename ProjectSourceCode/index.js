@@ -264,6 +264,9 @@ app.post("/newsSearch", auth, async (req, res) => {
 
     const local_news = response.data.top_stories || response.data.news_results || [];
 
+    // Sort news by date (by descending order, most recent first)
+    local_news.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     res.render("pages/newsSearch", { local_news, location, message: "" });
   } catch (error) {
     console.error("Error fetching news:", error);
