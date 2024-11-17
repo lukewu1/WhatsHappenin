@@ -197,6 +197,8 @@ app.post('/register', async (req, res) => {
         else{
           req.session.user = user;
           req.session.save();
+          const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/defaultpp.png', 'No user description.');`;
+          await db.none(insertQuery, [user.user_id]);
           return res.redirect('/newsMap');
         }
       }
@@ -384,38 +386,18 @@ app.post("/savedArticles", async (req, res) => {
 
 app.get("/profile", async (req, res) => {
   const user = req.session.user;
-  const isTest = req.query.test;
-
-  console.log('test', isTest);
 
   if(!user){
-    if(isTest){
-      return res.status(401).send('Not authenticated.');
-    }
-    else{
-      return res.render("pages/login", {message: "User not authenticated."});
-    }
+    return res.render("pages/login", {message: "User not authenticated."});
   } 
 
   try{
-    if(isTest){
-      res.status(200).json({
-        username: req.session.user.username,
-      });
-    }
-    else{
-      const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/1721460161212.jpeg', 'My name bob') RETURNING *;`;
-      const profile = await db.one(insertQuery, [user.user_id]);
-      res.render("pages/profile", {user, profile});
-    }
+    const retrieveQuery = `SELECT * FROM profiles WHERE user_id = $1`;
+    const profile = await db.one(retrieveQuery, [user.user_id]);
+    res.render("pages/profile", {user, profile});
   }
   catch(err){
-    if(isTest){
-      res.status(500).send('Internal Server Error.');
-    }
-    else{
-      res.render("pages/login", {message: "Sorry we encountered an error."});
-    }
+    res.render("pages/login", {message: "Sorry we encountered an error."});
   }
  });
 
@@ -424,7 +406,6 @@ app.post('/updateUser', async function (req, res) {
   const updateQuery1 = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING * ;`;
   const updateQuery2 = `UPDATE profiles SET profile_description = $1 WHERE user_id = $2 RETURNING *;`;
   const profile = await db.oneOrNone(updateQuery2, [req.body.description, prevUser.user_id]);
-  // console.log(req.body.username);
   const user = await db.oneOrNone(updateQuery1, [req.body.username, prevUser.user_id])
   if(user){
     res.render("pages/profile", {user, profile});
