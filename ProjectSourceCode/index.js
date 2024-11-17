@@ -128,7 +128,10 @@ app.post('/login', async (req, res) => {
       } else {
         req.session.user = user;
         req.session.save();
-        res.redirect('/savedArticles');
+        res.redirect('/newsMap');
+
+        
+
       }
     }
     else {
@@ -241,7 +244,7 @@ const auth = (req, res, next) => {
   next();
 };
 
-// Authentication Required
+
 app.use(auth);
 
 app.get("/newsSearch", auth, (req, res) => {
@@ -249,33 +252,33 @@ app.get("/newsSearch", auth, (req, res) => {
 });
 
 app.post("/newsSearch", auth, async (req, res) => {
-  const axios = require("axios");
 
 
-  const location = req.body.location || "New York, New York, United States";
-
+  const location = req.body.location || "New York, New York, United States"; 
 
   try {
+    // Fetch local news from SerpAPI
     const response = await axios.get("https://serpapi.com/search.json", {
       params: {
-        q: "Live news",
-        location: location,
-        hl: "en",
-        gl: "us",
-        api_key: `${process.env.NEWS_API_KEY}`
+        engine: "google_news",
+        q: location,
+        api_key: process.env.NEWS_API_KEY
       }
     });
 
-    const local_news = response.data.organic_results || response.data.top_stories || [];
+
+    const local_news = response.data.top_stories || response.data.news_results || [];
+
+    // Sort news by date (by descending order, most recent first)
+    local_news.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.render("pages/newsSearch", { local_news, location, message: "" });
-
-
   } catch (error) {
     console.error("Error fetching news:", error);
     res.render("pages/newsSearch", { local_news: [], location, message: "Failed to fetch news. Please try again later." });
   }
 });
+
 
 app.get("/Dummy", auth, async (req, res) => {
   const axios = require("axios");
@@ -310,8 +313,8 @@ app.get("/newsMap", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/logout");
+ req.session.destroy();
+ res.redirect("/login");
 });
 
 app.get("/savedArticles", (req, res) => {

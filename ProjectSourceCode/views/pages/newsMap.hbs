@@ -1,4 +1,127 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Marker</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script>
+      let marker = null;
+
+      function initMap() {
+        const mapCenter = { lat: 40, lng: -100 };
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 4,
+          center: mapCenter,
+        });
+
+        map.addListener("click", (event) => {
+          addMarker(event.latLng, map);
+          getCity(event.latLng);
+        });
+      }
+
+      function addMarker(location, map) {
+        if (marker) {
+          marker.setMap(null);
+        }
+
+        marker = new google.maps.Marker({
+          position: location, 
+          map: map,
+        });
+      }
+
+      function getCity(latLng) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: latLng }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            let city = null;
+            let state = null;
+            let country = null;
+
+            for (const component of results[0].address_components) {
+              if (component.types.includes("locality")) {
+                city = component.long_name;
+              }
+              if (component.types.includes("administrative_area_level_1")) {
+                state = component.short_name;
+              }
+              if (component.types.includes("country")) {
+                country = component.long_name;
+              }
+            }
+
+            let locationString = city;
+            if (state) {
+              locationString += `, ${state}`;
+            } else if (country) {
+              locationString += `, ${country}`;
+            }
+
+            if (city) {
+              console.log("Location: ", locationString);
+
+              // Sets the location of what was clicked on in the search bar
+              document.getElementById("location").value = locationString;
+
+              // Submit the form with the selected location
+              document.getElementById("locationForm").submit();
+            } else {
+              console.log("No city found");
+            }
+          } else {
+            console.log("Error geocoding location");
+          }
+        });
+      }
+    </script>
+
+    <script async src="{{mapAPI}}&callback=initMap"></script>
+  </head>
+  <body>
+    <!-- Map Div -->
+    <div id="map" style="height: 500px; width: 100%"></div>
+
+    <!-- Moves you to newsSearch -->
+    <form id="locationForm" action="/newsSearch" method="POST" class="mb-4">
+      <input type="text" name="location" id="location" placeholder="Enter a location" class="form-control" required />
+      <button type="submit" style="display: none;">Search News</button>
+    </form>
+
+    <!-- Displaying News Articles -->
+    <div class="row">
+      {{#if message}}
+      <div class="alert alert-danger">{{message}}</div>
+      {{/if}}
+
+      {{#each local_news}}
+      <div class="col-md-4 mb-3">
+        <div class="card">
+          <img class="card-img-top" src="{{this.thumbnail}}" alt="{{this.title}}" />
+          <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <p class="card-text">{{this.snippet}}</p>
+            <p class="card-text">Source: {{this.source}}</p>
+            <p class="card-text">Date: {{this.date}}</p>
+            <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </body>
+</html>
+
+
+
+
+
+{{!-- old code is under --}}
+
+
+
+{{!-- <html>
   <head>
     <title>Simple Marker</title>
     <link rel="stylesheet" href="./style.css" />
@@ -110,4 +233,4 @@
     </div>
 
   </body>
-</html>
+</html> --}}
