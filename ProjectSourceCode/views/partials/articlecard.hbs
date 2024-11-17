@@ -20,10 +20,10 @@
     <p class="article-time">{{date}}</p>
     <p class="article-author">By {{author}}</p>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#comments">
-      Comment
+      <i class="fa-solid fa-comment"></i>
     </button>
     {{!-- read through hbs partial guide, found partial paramaters to pass in the article comment data to another partial --}}
-    {{> comments comments=comments}}
+    {{> comments comments=comments user=user edit_comment_id_show=edit_comment_id_show}}
 </div>
 
 {{!-- in the future, change names of partial variables to incorporate the API for news headlines --}}
