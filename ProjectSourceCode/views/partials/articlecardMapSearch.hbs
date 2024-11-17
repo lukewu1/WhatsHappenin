@@ -15,17 +15,17 @@
 </head>
 
 <div class="article-card">
-    <img src="{{imageURL}}" alt="{{headline}}" class="article-image">
-    <h2 class="article-headline">{{headline}}</h2>
+    <img src="{{thumbnail}}" alt="{{title}}" class="article-image">
+    <h2 class="article-headline">{{title}}</h2>
     <p class="article-time">{{date}}</p>
-    <p class="article-author">By {{author}}</p>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#comments">
-      <i class="fa-solid fa-comment"></i>
-    </button>
-    {{!-- read through hbs partial guide, found partial paramaters to pass in the article comment data to another partial --}}
-    {{> comments comments=comments user=user edit_comment_id_show=edit_comment_id_show}}
+    {{#if this.source.authors}}
+        <p class="article-author">By {{source.authors}}</p>
+    {{else}}
+        <p class="article-author">By N/A</p>
+    {{/if}}
+    <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
 </div>
-
+ 
 {{!-- in the future, change names of partial variables to incorporate the API for news headlines --}}
 
 <style>
@@ -39,7 +39,7 @@
 
   .article-card img {
     width: 100%;
-    height: 150px; 
+    height: 300px; 
     object-fit: cover; /* Crop the image to fit */
     border-radius: 5px 5px 0 0; 
     }
