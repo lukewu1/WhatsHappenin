@@ -308,6 +308,44 @@ app.get("/newsMap", (req, res) => {
  res.render("pages/newsMap", { mapAPI });
 });
 
+app.post("/newsMap", async (req, res) => {
+  // Query to insert an article into the `articles` table
+  const insertArticleQuery = `
+    INSERT INTO articles (title, a_date, author, thumbnail, link)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `;
+
+  // Query to associate the article with the user in the `articles_to_users` table
+  const insertArticleToUserQuery = `
+    INSERT INTO articles_to_users (article_id, user_id)
+    VALUES ($1, $2)
+    RETURNING *;
+  `;
+
+  try {
+    const { title, date: a_date, author, thumbnail, link } = req.body;
+    const user_id = req.session.user.user_id; // Assumes session management is implemented
+
+    // Insert the article into the `articles` table
+    const article = await db.one(insertArticleQuery, [title, a_date, author, thumbnail, link]);
+
+    // Associate the article with the user in the `user_articles` table
+    const userArticle = await db.one(insertArticleToUserQuery, [article.article_id, user_id]);
+
+    res.status(200).json({
+      message: "Article saved successfully",
+      article,
+      userArticle
+    });
+  } catch (error) {
+    console.error("Error saving article:", error);
+    res.status(500).json({
+      message: "Failed to save article. Please try again later."
+    });
+  }
+});
+
 app.get("/logout", (req, res) => {
  req.session.destroy();
  res.redirect("/login");

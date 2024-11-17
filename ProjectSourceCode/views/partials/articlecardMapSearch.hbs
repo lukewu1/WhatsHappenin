@@ -12,6 +12,9 @@
 
  <!-- Font Awesome library -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</script>
+
 </head>
 
 <div class="article-card">
@@ -24,6 +27,18 @@
         <p class="article-author">By N/A</p>
     {{/if}}
     <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
+
+    <form action="/newsMap" method="POST">
+    <!-- Hidden inputs for the article data -->
+    <input type="hidden" name="title" value="{{title}}">
+    <input type="hidden" name="date" value="{{date}}">
+    <input type="hidden" name="thumbnail" value="{{thumbnail}}">
+    <input type="hidden" name="link" value="{{this.link}}">
+    <input type="hidden" name="author" value="{{#if this.source.authors}}{{this.source.authors}}{{else}}N/A{{/if}}">
+    
+    <!-- Submit button -->
+    <button type="submit" class="btn btn-secondary">Save Article</button>
+  </form>
 </div>
  
 {{!-- in the future, change names of partial variables to incorporate the API for news headlines --}}
