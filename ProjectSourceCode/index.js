@@ -129,9 +129,6 @@ app.post('/login', async (req, res) => {
         req.session.user = user;
         req.session.save();
         res.redirect('/newsMap');
-
-        
-
       }
     }
     else {
@@ -204,15 +201,13 @@ app.post('/register', async (req, res) => {
           else {
             req.session.user = user;
             req.session.save();
+            const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/defaultpp.png', 'No user description.');`;
+            await db.none(insertQuery, [user.user_id]);
             return res.redirect('/newsMap');
           }
         }
         else{
-          req.session.user = user;
-          req.session.save();
-          const insertQuery = `INSERT INTO profiles (user_id, profile_picture, profile_description) VALUES ($1, '../../resources/images/defaultpp.png', 'No user description.');`;
-          await db.none(insertQuery, [user.user_id]);
-          return res.redirect('/newsMap');
+          return res.render('pages/login', {message: "Sorry we encountered an error."});
         }
       }
       catch (err) {
@@ -349,10 +344,13 @@ app.get("/savedArticles", (req, res) => {
 })
 
 app.post("/savedArticles", async (req, res) => {
+  const user = req.session.user;
   if (req.body.comment) {
-    const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
+    const add_comment = 'INSERT INTO comments (username,comment) VALUES ($1, $2) RETURNING *;';
     const comment_added = await db.one(add_comment, [req.session.user.username, req.body.comment]);
 
+    const add_to_uc = `INSERT INTO users_to_comments ( user_id, comment_id ) VALUES ($1, $2);`;
+    const comment_added_to_uc = await db.none(add_to_uc, [user.user_id, comment_added.comment_id]);
 
     if (comment_added) {
       db.any('SELECT * FROM COMMENTS')
@@ -454,7 +452,7 @@ app.post("/savedArticles", async (req, res) => {
         })
     }
     else if(req.body.edited_comment_text){
-      const update_query = 'UPDATE comments SET comment =$1 WHERE comment_id = $2 RETURNING *';
+      const update_query = 'UPDATE comments SET comment = $1 WHERE comment_id = $2 RETURNING *';
       const updated = await db.one(update_query,[req.body.edited_comment_text, req.body.edited_comment_id]);
       if(updated){
       db.any('SELECT * FROM COMMENTS')
@@ -498,21 +496,35 @@ app.get("/profile", async (req, res) => {
   } 
 
   try{
-    const retrieveQuery = `SELECT * FROM profiles WHERE user_id = $1`;
-    const profile = await db.one(retrieveQuery, [user.user_id]);
-    res.render("pages/profile", {user, profile});
+    const retrieveProfileQuery = `SELECT * FROM profiles WHERE user_id = $1`;
+    const profile = await db.one(retrieveProfileQuery, [user.user_id]);
+    const retrieveCommentsQuery = 
+    `SELECT *
+    FROM comments
+    INNER JOIN users_to_comments uc ON comments.comment_id = uc.comment_id
+    WHERE uc.user_id = $1;
+    `;
+    const comments = await db.any(retrieveCommentsQuery, [user.user_id]);
+    console.log(comments);
+    res.render("pages/profile", {user, profile, comments});
   }
   catch(err){
-    res.render("pages/login", {message: "Sorry we encountered an error."});
+    res.render("pages/login", {message: err});
   }
 });
 
 app.post('/updateUser', async function (req, res) {
   const prevUser = req.session.user;
-  const updateQuery1 = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING * ;`;
+  const updateQuery1 = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING *;`;
   const updateQuery2 = `UPDATE profiles SET profile_description = $1 WHERE user_id = $2 RETURNING *;`;
+  const updateQuery3 = `UPDATE comments SET username = $1 FROM users_to_comments WHERE users_to_comments.user_id = $2;`;
+  const updateQuery4 = `UPDATE profiles SET profile_picture = $1 WHERE user_id = $2;`;
+  await db.none(updateQuery4, [req.body.profilePicture, prevUser.user_id]);
+  const user = await db.oneOrNone(updateQuery1, [req.body.username, prevUser.user_id]);
+  req.session.user = user;
+  req.session.save();
   const profile = await db.oneOrNone(updateQuery2, [req.body.description, prevUser.user_id]);
-  const user = await db.oneOrNone(updateQuery1, [req.body.username, prevUser.user_id])
+  await db.none(updateQuery3, [req.body.username, prevUser.user_id]);
   if (user) {
     res.render("pages/profile", { user, profile });
   }

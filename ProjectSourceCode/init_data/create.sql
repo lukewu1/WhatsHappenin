@@ -8,7 +8,7 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS profiles;
 CREATE TABLE profiles (
     user_id INT NOT NULL UNIQUE,
-    profile_picture VARCHAR(50),
+    profile_picture VARCHAR(100),
     profile_description TEXT,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
