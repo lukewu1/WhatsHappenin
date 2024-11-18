@@ -315,36 +315,11 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/savedArticles", (req, res) => {
-  const get_comments = 'SELECT * FROM COMMENTS';
+  const get_comments = 'SELECT * FROM articles';
 
   db.any(get_comments)
     .then(function (data) {
-      const comments = data;
-
-      const mockData = [
-        {
-          imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-          headline: "Headline Test 1",
-          date: "2021-09-01",
-          author: "Myung Test",
-          comments: comments,
-        },
-        {
-          imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-          headline: "Headline Test 2",
-          date: "2022-10-01",
-          author: "Jeno Test",
-          comments: comments,
-        },
-        {
-          imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-          headline: "Headline Test 3",
-          date: "2016-05-21",
-          author: "Lomon Test",
-          comments: comments,
-        },
-      ];
-      res.render("pages/savedarticles", { articles: mockData, user: req.session.user.username });
+      res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
     })
 })
 
