@@ -384,20 +384,56 @@ app.get("/savedArticlesTesting", auth, async (req, res) => {
 });
 
 app.get("/savedArticles", (req, res) => {
-  const get_comments = 'SELECT * FROM articles';
+  const get_articles = 
+  `
+    SELECT * 
+    FROM articles 
+    JOIN articles_to_users ON articles.article_id = articles_to_users.article_id
+    JOIN users ON articles_to_users.user_id = users.user_id
+    WHERE users.username = $1;
+  `;
 
-  db.any(get_comments)
+  const temp_insert = 
+  `
+    INSERT INTO articles_to_users (article_id, user_id)
+    VALUES
+      (1, 2),
+      (2, 2),
+      (3, 2),
+      (4, 2),
+      (5, 2);
+ 
+  `;
+
+  db.any(temp_insert);
+
+  db.any(get_articles, [req.session.user.username])
     .then(function (data) {
+      console.log(data);
       res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
     })
 });
 
 app.post("/savedArticles", async (req, res) => {
+  console.log("HERE");
   if (req.body.comment) {
+    console.log('==============================')
+    console.log(req.body.comment);
+  }
+  res.redirect('/savedArticles');
+  return;      
+  res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
+
+  if (req.body.comment) {      res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
+
     const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
     const comment_added = await db.one(add_comment, [req.session.user.username, req.body.comment]);
 
-
+    db.any('SELECT * FROM COMMNETS')
+    .then(function (data) {
+      console.log(data);
+    })
+    
     if (comment_added) {
       db.any('SELECT * FROM COMMENTS')
         .then(function (data) {
@@ -426,7 +462,7 @@ app.post("/savedArticles", async (req, res) => {
               comments: comments,
             },
           ];
-          res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username });
+          // res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username });
         })
     }
   }
