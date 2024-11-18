@@ -309,9 +309,78 @@ app.get("/newsMap", (req, res) => {
   res.render("pages/newsMap", { mapAPI });
 });
 
+app.post("/newsMap", (req, res) => {
+  const insertArticleQuery = `
+    INSERT INTO articles (title, a_date, author, thumbnail, link)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `;
+
+  const insertArticleToUserQuery = `
+    INSERT INTO articles_to_users (article_id, user_id)
+    VALUES ($1, $2)
+    RETURNING *;
+  `;
+
+  const { title, date: a_date, author, thumbnail, link } = req.body;
+  const user_id = req.session.user.user_id;
+
+  db.one(insertArticleQuery, [title, a_date, author, thumbnail, link])
+    .then((article) => {
+      return db.one(insertArticleToUserQuery, [article.article_id, user_id])
+        .then((userArticle) => {
+          res.status(200).json({
+            message: "Article saved successfully!",
+            article,
+            userArticle,
+          });
+        });
+    })
+    .catch((error) => {
+      console.error("Error saving article:", error);
+      res.status(500).json({
+        message: "Failed to save the article. Please try again later.",
+        error,
+      });
+    });
+});
+
+
+
 app.get("/logout", (req, res) => {
  req.session.destroy();
  res.redirect("/login");
+});
+
+app.get("/savedArticlesTesting", auth, async (req, res) => {
+  const user_id = req.session.user.user_id;
+
+  // Query to fetch saved articles
+  const savedArticlesQuery = `
+    SELECT a.article_id, a.title, a.a_date, a.author, a.thumbnail, a.link
+    FROM articles a
+    INNER JOIN articles_to_users atu ON a.article_id = atu.article_id
+    WHERE atu.user_id = $1
+    ORDER BY a.a_date DESC;
+  `;
+
+  try {
+    const savedArticles = await db.any(savedArticlesQuery, [user_id]);
+
+    res.render("pages/savedarticles", {
+      articles: savedArticles,
+      user: req.session.user.username,
+    });
+  } catch (error) {
+    console.error("Error fetching saved articles or comments:", error);
+
+    res.render("pages/savedarticles", {
+      articles: [],
+      comments: [],
+      user: req.session.user.username,
+      message: "Failed to fetch saved articles or comments. Please try again later.",
+    });
+  }
 });
 
 app.get("/savedArticles", (req, res) => {
@@ -321,7 +390,7 @@ app.get("/savedArticles", (req, res) => {
     .then(function (data) {
       res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
     })
-})
+});
 
 app.post("/savedArticles", async (req, res) => {
   if (req.body.comment) {
@@ -336,23 +405,23 @@ app.post("/savedArticles", async (req, res) => {
 
           const mockData = [
             {
-              imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              headline: "Headline Test 1",
-              date: "2021-09-01",
+              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+              title: "title Test 1",
+              a_date: "2021-09-01",
               author: "Myung Test",
               comments: comments,
             },
             {
-              imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              headline: "Headline Test 2",
-              date: "2022-10-01",
+              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+              title: "title Test 2",
+              a_date: "2022-10-01",
               author: "Jeno Test",
               comments: comments,
             },
             {
-              imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              headline: "Headline Test 3",
-              date: "2016-05-21",
+              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+              title: "title Test 3",
+              a_date: "2016-05-21",
               author: "Lomon Test",
               comments: comments,
             },
@@ -372,23 +441,23 @@ app.post("/savedArticles", async (req, res) => {
 
           const mockData = [
             {
-              imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              headline: "Headline Test 1",
-              date: "2021-09-01",
+              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+              title: "title Test 1",
+              a_date: "2021-09-01",
               author: "Myung Test",
               comments: comments,
             },
             {
-              imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              headline: "Headline Test 2",
-              date: "2022-10-01",
+              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+              title: "title Test 2",
+              a_date: "2022-10-01",
               author: "Jeno Test",
               comments: comments,
             },
             {
-              imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              headline: "Headline Test 3",
-              date: "2016-05-21",
+              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+              title: "title Test 3",
+              a_date: "2016-05-21",
               author: "Lomon Test",
               comments: comments,
             },
@@ -404,23 +473,23 @@ app.post("/savedArticles", async (req, res) => {
 
           const mockData = [
             {
-              imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              headline: "Headline Test 1",
-              date: "2021-09-01",
+              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+              title: "title Test 1",
+              a_date: "2021-09-01",
               author: "Myung Test",
               comments: comments,
             },
             {
-              imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              headline: "Headline Test 2",
-              date: "2022-10-01",
+              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+              title: "title Test 2",
+              a_date: "2022-10-01",
               author: "Jeno Test",
               comments: comments,
             },
             {
-              imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              headline: "Headline Test 3",
-              date: "2016-05-21",
+              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+              title: "title Test 3",
+              a_date: "2016-05-21",
               author: "Lomon Test",
               comments: comments,
             },
@@ -438,23 +507,23 @@ app.post("/savedArticles", async (req, res) => {
 
           const mockData = [
             {
-              imageURL: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              headline: "Headline Test 1",
-              date: "2021-09-01",
+              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
+              title: "title Test 1",
+              a_date: "2021-09-01",
               author: "Myung Test",
               comments: comments,
             },
             {
-              imageURL: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              headline: "Headline Test 2",
-              date: "2022-10-01",
+              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
+              title: "title Test 2",
+              a_date: "2022-10-01",
               author: "Jeno Test",
               comments: comments,
             },
             {
-              imageURL: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              headline: "Headline Test 3",
-              date: "2016-05-21",
+              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
+              title: "title Test 3",
+              a_date: "2016-05-21",
               author: "Lomon Test",
               comments: comments,
             },
