@@ -31,9 +31,11 @@ CREATE TABLE users_to_comments (
 DROP TABLE IF EXISTS articles;
 CREATE TABLE articles (
     article_id SERIAL PRIMARY KEY NOT NULL,
-    headline VARCHAR(50) NOT NULL,
-    a_date DATE NOT NULL,
-    author VARCHAR(50) NOT NULL
+    title VARCHAR(255) NOT NULL,
+    a_date VARCHAR(50) NOT NULL,
+    author VARCHAR(50) NOT NULL,
+    thumbnail VARCHAR(500),
+    link VARCHAR(500) NOT NULL
 );
 
 DROP TABLE IF EXISTS articles_to_comments;
@@ -42,4 +44,12 @@ CREATE TABLE articles_to_comments (
     comment_id INT NOT NULL,
     FOREIGN KEY (article_id) REFERENCES articles (article_id) ON DELETE CASCADE,
     FOREIGN KEY (comment_id) REFERENCES comments (comment_id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS articles_to_users;
+CREATE TABLE articles_to_users (
+    article_id INT NOT NULL,
+    user_id INT NOT NULL,
+    FOREIGN KEY (article_id) REFERENCES articles (article_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );

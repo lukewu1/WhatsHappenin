@@ -15,10 +15,14 @@
 </head>
 
 <div class="article-card">
-    <img src="{{imageURL}}" alt="{{headline}}" class="article-image">
-    <h2 class="article-headline">{{headline}}</h2>
-    <p class="article-time">{{date}}</p>
+    <img src="{{thumbnail}}" alt="{{title}}" class="article-image">
+    <h2 class="article-headline">{{title}}</h2>
+    <p class="article-time">{{a_date}}</p>
+    {{#if author}}
     <p class="article-author">By {{author}}</p>
+    {{else}}
+      <p class="article-author">By N/A</p>
+    {{/if}}
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#comments">
       <i class="fa-solid fa-comment"></i>
     </button>

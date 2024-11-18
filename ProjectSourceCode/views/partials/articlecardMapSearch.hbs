@@ -12,19 +12,35 @@
 
  <!-- Font Awesome library -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <script src="../../resources/js/script.js"></script>
+
+</script>
+
 </head>
 
 <div class="article-card">
-    <img src="{{thumbnail}}" alt="{{title}}" class="article-image">
-    <h2 class="article-headline">{{title}}</h2>
-    <p class="article-time">{{date}}</p>
-    {{#if this.source.authors}}
-        <p class="article-author">By {{source.authors}}</p>
-    {{else}}
-        <p class="article-author">By N/A</p>
-    {{/if}}
-    <a href="{{this.link}}" class="btn btn-primary" target="_blank">Read More</a>
+  <img src="{{thumbnail}}" alt="{{title}}" class="article-image">
+  <h2 class="article-headline">{{title}}</h2>
+  <p class="article-time">{{date}}</p>
+  {{#if author}}
+    <p class="article-author">By {{author}}</p>
+  {{else}}
+    <p class="article-author">By N/A</p>
+  {{/if}}
+  <a href="{{link}}" class="btn btn-primary" target="_blank">Read More</a>
+
+  <!-- Save Article Form -->
+  <form id="saveArticleForm-{{article_id}}" method="POST" action="#">
+    <input type="hidden" name="title" value="{{title}}">
+    <input type="hidden" name="date" value="{{date}}">
+    <input type="hidden" name="thumbnail" value="{{thumbnail}}">
+    <input type="hidden" name="link" value="{{link}}">
+    <input type="hidden" name="author" value="{{author}}">
+    <button type="submit" class="btn btn-secondary save-article" data-id="{{article_id}}" disabled>Loading...</button> 
+  </form>
 </div>
+
  
 {{!-- in the future, change names of partial variables to incorporate the API for news headlines --}}
 
@@ -58,6 +74,14 @@
     float: right;
     margin-top: 0.5rem;
   }
+
+  .btn-disabled {
+  background-color: #d3d3d3;
+  color: #888;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 
 
 </style>
