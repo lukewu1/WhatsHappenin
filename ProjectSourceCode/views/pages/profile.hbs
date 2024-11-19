@@ -10,43 +10,56 @@
   </script>
 </head>
 
-<div class="flex justify-center">
-   <div class="w-1/2">
-       <div class="d-flex pt-4">
-           <div class="w-1/2">
-               <div class="d-flex justify-center pt-2">
-                   <img src="{{profile.profile_picture}}" class="rounded-full w-52 h-52">
-               </div>
-                   <div class="d-flex justify-center pt-2" id="edit1" style="display: none !important;">
-                       <button class="px-4 py-1 border border-gray-300 rounded-md text-gray-700 font-semibold hover:bg-gray-100" onclick="handleEdit()">Change Photo</button>
-                   </div>
-               </div>
-           <div class="w-1/2">
-               <div class="d-flex justify-center">
-                   <div>
-                       {{user.username}}
-                   </div>
-               </div>
-               <div class="d-flex pt-2">
-                   <div>
-                       {{profile.profile_description}}
-                   </div>
-               </div>
-                   <div class="d-flex justify-center pt-2" id="edit2" style="display: none !important;">
-                       <button class="px-4 py-1 border border-gray-300 rounded-md text-gray-700 font-semibold hover:bg-gray-100" onclick="handleEdit()">Update Profile Description</button>
-                   </div>
-               </div>
-           </div>
-       <div class="d-flex pt-4 justify-center">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prof">
-                Edit Profile
-            </button>
-           {{!-- <button class="px-4 py-1 border border-gray-300 rounded-md text-gray-700 font-semibold bg-red-400" onclick="handleEdit()">Cancel Edditing</button> --}}
-       </div>
-       <div class="d-flex pt-4">
-           Comments made by you
-       </div>
-   </div>
+<script>
+function selectImage(imgEl) {
+    const images = document.querySelectorAll('.modal img');
+
+    images.forEach(img => {
+        img.style.border = 'none';
+    });
+
+    imgEl.style.border = '2px solid blue';
+    
+    document.getElementById('profilePicture').value = imgEl.src;
+}
+
+</script>
+
+<div class="flex justify-center h-screen bg-gray-50">
+   <div class="flex w-1/2 flex-col h-full pt-4 bg-white shadow-md">
+        <div class="flex items-center pl-8">
+            <i class="fa-solid fa-user text-2xl"></i>
+            <p class="text-2xl m-0 pl-2">Profile</p>
+        </div>
+        <div class="flex w-full flex-col h-full pt-4 bg-white shadow-md">
+            <div class="flex justify-center">
+                <img src="{{profile.profile_picture}}" class="rounded-full w-56 h-56 object-cover">
+            </div>
+            <div class="flex justify-center pt-4">
+                <p class="text-2xl m-0 font-bold">{{user.username}}</p>
+            </div>
+            <div class="flex justify-center pt-4">
+                <p class="text-base m-0 text-gray-500">{{profile.profile_description}}</p>
+            </div>
+            <div class="flex justify-center pt-4">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#prof">
+                    Edit Profile
+                </button>
+            </div>
+            <div class="flex flex-col items-center justify-center pt-4 text-gray-500">
+                <h3 class="text-lg font-semibold text-gray-800">Comments made by you:</h3>
+                <ul class="m-0 p-0">
+                    {{#if comments}}
+                    {{#each comments}}
+                        <li class="bg-gray-100 p-2 mt-2 rounded-lg shadow-sm">{{comment}}</li>
+                    {{/each}}
+                    {{else}}
+                        No user comments.
+                    {{/if}}
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="modal" tabindex="-1" id="prof">
@@ -57,19 +70,85 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="/updateUser">
+                    <div class="mb-3 d-flex align-items-center flex-col">
+                        <img src="{{profile.profile_picture}}" class="rounded-full w-52 h-52 object-cover">
+                        <div class="d-flex mt-2">
+                            <div>
+                                <label>
+                                    <img
+                                        src="../../resources/images/central-park-image.jpeg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Central Park"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/disney-world-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Disney World"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/golden-gate-bridge-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Golden Gate Bridge"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/grand-canyon-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Grand Canyon"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/Hamilton-Pool-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Hamilton Pool"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/niagara-falls-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Niagara Falls"
+                                    />
+                                </label>
+                            </div>
+                            <input type="hidden" id="profilePicture" name="profilePicture" value="{{profile.profile_picture}}"/>
+                        </div>
+                    </div>
                     <div class="mb-3 d-flex align-items-center">
                         <label for="username" class="form-label me-2">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="{{user.username}}">
+                        <input type="text" class="form-control" id="username" name="username" value="{{user.username}}">
                     </div>
                     <div class="mb-3 d-flex align-items-center">
                         <label for="description" class="form-label me-2">Description</label>
-                        <input type="text" class="form-control" id="description" name="description" placeholder="{{profile.profile_description}}">
+                        <input type="text" class="form-control" id="description" name="description" value="{{profile.profile_description}}">
                     </div>
                     <button id="close_button" class="btn btn-primary" type="button" data-bs-dismiss="modal">
-                        Close
+                        Cancel
                     </button>
                     <button class="btn btn-primary" type="submit">
-                        Update
+                        Save Changes
                     </button>
                 </form>
             </div>

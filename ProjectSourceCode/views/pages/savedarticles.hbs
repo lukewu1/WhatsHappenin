@@ -1,19 +1,12 @@
-{{!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saved Articles</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head> --}}
 {{> message }}
 
 <body>
     <div class="container" style="padding: 50px">
         <h1>Saved Articles</h1>
         <div class="d-flex flex-column align-items-center">
+          {{!use ../user because we get user to savedarticles form index.js, but each creates a new scope for each article}}
             {{#each articles}}
-            {{>articlecard}}
+            {{>articlecard user=../user edit_comment_id_show=../edit_comment_id_show}}
             {{/each}}
         </div>
     </div>
