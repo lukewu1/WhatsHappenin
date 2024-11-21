@@ -440,57 +440,38 @@ app.get("/savedArticles", async (req, res) => {
       })
     );
 
-    console.log('=================');
-    console.log(articlesWithComments);
-    console.log('=================');
-    console.log(articlesWithComments[0]);
-    console.log('=================');
-    console.log(articlesWithComments[0].comments);
-    console.log('=================');
-    console.log(articlesWithComments[1]);
-    console.log('=================');
-    console.log(articlesWithComments[2]);
+    // console.log('=================');
+    // console.log(articlesWithComments);
+    // console.log('=================');
+    // console.log(articlesWithComments[0]);
+    // console.log('=================');
+    // console.log(articlesWithComments[0].comments);
+    // console.log('=================');
+    // console.log(articlesWithComments[1]);
+    // console.log('=================');
+    // console.log(articlesWithComments[2]);
 
   res.render("pages/savedarticles", { articles: articlesWithComments, user: req.session.user.username });
 });
 
 app.post("/savedArticles", async (req, res) => {
-
-  if (req.body.comment) {      
+  if (req.body.comment) {  
+    console.log("inside", req.body)    
     const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
+    const comment_added = await db.one(add_comment,[req.session.user.username, req.body.comment]);
 
-    const parameters = [req.session.user.username, req.body.comment];
-    const comment_added = await db.one(add_comment, parameters);
+    const add_articles_to_comments = 'INSERT INTO ARTICLES_TO_COMMENTS (article_id, comment_id) VALUES ($1, $2) RETURNING *;';
+    const atc_response = await db.one(add_articles_to_comments, [req.body.commentRequest, comment_added.comment_id])
 
-    db.any('SELECT * FROM COMMENTS')
-    .then(function (data) {
+    db.any("SELECT * FROM COMMENTS").then(function (data) {
       console.log(data);
-    })
+    });
 
-    const get_articles = 
-    `
-      SELECT * 
-      FROM articles 
-      JOIN articles_to_users ON articles.article_id = articles_to_users.article_id
-      JOIN users ON articles_to_users.user_id = users.user_id
-      WHERE users.username = $1;
-    `;
-
-    db.any(get_articles, [req.session.user.username])
-      .then(function (data) {
-        res.render("pages/savedarticles", { articles: data, user: req.session.user.username });
-      })
-    return;
+    db.any("SELECT * FROM ARTICLES_TO_COMMENTS").then(function (data) {
+      console.log(data);
+    });
     res.redirect('/savedArticles');
-    return;
     
-    if (comment_added) {
-      db.any('SELECT * FROM COMMENTS')
-        .then(function (data) {
-          
-
-        })
-    }
   }
   else if(req.body.deleted_comment_id){
     const delete_query = 'DELETE FROM COMMENTS WHERE comment_id = $1 RETURNING *';

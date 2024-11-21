@@ -6,7 +6,7 @@
         <div class="d-flex flex-column align-items-center">
           {{!use ../user because we get user to savedarticles form index.js, but each creates a new scope for each article}}
             {{#each articles}}
-            {{>articlecard user=../user edit_comment_id_show=../edit_comment_id_show}}
+            {{>articlecard user=../user edit_comment_id_show=../edit_comment_id_show article_id=this.article_id}}
             {{/each}}
         </div>
     </div>
