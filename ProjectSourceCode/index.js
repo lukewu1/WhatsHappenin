@@ -352,39 +352,9 @@ app.get("/logout", (req, res) => {
  res.redirect("/login");
 });
 
-app.get("/savedArticlesTesting", auth, async (req, res) => {
-  const user_id = req.session.user.user_id;
-
-  // Query to fetch saved articles
-  const savedArticlesQuery = `
-    SELECT a.article_id, a.title, a.a_date, a.author, a.thumbnail, a.link
-    FROM articles a
-    INNER JOIN articles_to_users atu ON a.article_id = atu.article_id
-    WHERE atu.user_id = $1
-    ORDER BY a.a_date DESC;
-  `;
-
-  try {
-    const savedArticles = await db.any(savedArticlesQuery, [user_id]);
-
-    res.render("pages/savedarticles", {
-      articles: savedArticles,
-      user: req.session.user.username,
-    });
-  } catch (error) {
-    console.error("Error fetching saved articles or comments:", error);
-
-    res.render("pages/savedarticles", {
-      articles: [],
-      comments: [],
-      user: req.session.user.username,
-      message: "Failed to fetch saved articles or comments. Please try again later.",
-    });
-  }
-});
 
 app.get("/savedArticles", async (req, res) => {
-  const get_articles = 
+  const get_articles =      
   `
     SELECT * 
     FROM articles 
