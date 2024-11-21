@@ -36,7 +36,7 @@ Handlebars.registerHelper('isequal', function (arg1, arg2) {
 
 // database configuration
 const dbConfig = {
-  host: "db", // the database server
+  host: process.env.POSTGRES_HOST, // the database server
   port: 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
