@@ -5,7 +5,7 @@
     }
 </script>
 
-<div class="modal fade" tabindex="-1" id="comments">
+<div class="modal fade" tabindex="-1" id="comments{{article_id}}">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -44,8 +44,8 @@
                             </tr>
                             {{else}}
                             <tr>
-                                <td class="py-2">{{username}}</td>
-                                <td class="py-2">{{comment}}</td>
+                                <td class="py-2">{{this.username}}</td>
+                                <td class="py-2">{{this.comment}}</td>
                                 {{#if (isequal ../user username)}}
                                 <td>
                                     <form method="POST" action="/savedArticles">
