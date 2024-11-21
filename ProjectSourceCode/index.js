@@ -447,38 +447,10 @@ app.get("/savedArticles", async (req, res) => {
     console.log('=================');
     console.log(articlesWithComments[0].comments);
     console.log('=================');
-    console.log(articlesWithComments[2].comments);
+    console.log(articlesWithComments[1]);
     console.log('=================');
+    console.log(articlesWithComments[2]);
 
-
-  // db.any(get_articles, [req.session.user.username])
-  //   .then(async function (data) {
-  //     let final_articles = [];
-  //     console.log('data', data.length);
-  //     for(const article of data) {
-  //       console.log('article id', article.article_id);
-  //       const get_comments = 
-  //       `
-  //         SELECT *
-  //         FROM comments
-  //         INNER JOIN articles_to_comments ON comments.comment_id = articles_to_comments.comment_id
-  //         WHERE articles_to_comments.article_id = $1;
-  //       `;
-
-  //       await db.any(get_comments, [article.article_id])
-  //        .then(function (data) {
-  //           //console.log(data);
-  //           article.comments = data;
-  //           final_articles.push(article);
-  //           console.log(article);
-  //       });
-
-    
-  //     }
-      
-  //     console.log(data);
-
-    // });
   res.render("pages/savedarticles", { articles: articlesWithComments, user: req.session.user.username });
 });
 
