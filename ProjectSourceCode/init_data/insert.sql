@@ -2,13 +2,13 @@ INSERT INTO
     comments (username, comment)
 VALUES
     (
-        'ilovemapsandnews',
+        'a',
         'What an amazing article I really enjoyed listening to it'
     ),
-    ('ilovethiswebsite', 'amazing'),
-    ('fire', 'i agree'),
-    ('whatshappening??', 'yes'),
-    ('ihopethiscommentworks', 'please');
+    ('a', 'amazing'),
+    ('a', 'i agree'),
+    ('a', 'yes'),
+    ('a', 'please');
 
 INSERT INTO
     articles (title, a_date, author, link)
