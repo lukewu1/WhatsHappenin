@@ -10,14 +10,30 @@
   </script>
 </head>
 
+<script>
+function selectImage(imgEl) {
+    const images = document.querySelectorAll('.modal img');
+
+    images.forEach(img => {
+        img.style.border = 'none';
+    });
+
+    imgEl.style.border = '2px solid blue';
+    
+    document.getElementById('profilePicture').value = imgEl.src;
+}
+
+</script>
+
 <div class="flex justify-center h-screen bg-gray-50">
    <div class="flex w-1/2 flex-col h-full pt-4 bg-white shadow-md">
-        <div>
-            <i class="fa-solid fa-user"></i>Profile
+        <div class="flex items-center pl-8">
+            <i class="fa-solid fa-user text-2xl"></i>
+            <p class="text-2xl m-0 pl-2">Profile</p>
         </div>
         <div class="flex w-full flex-col h-full pt-4 bg-white shadow-md">
             <div class="flex justify-center">
-                <img src="{{profile.profile_picture}}" class="rounded-full w-56 h-56">
+                <img src="{{profile.profile_picture}}" class="rounded-full w-56 h-56 object-cover">
             </div>
             <div class="flex justify-center pt-4">
                 <p class="text-2xl m-0 font-bold">{{user.username}}</p>
@@ -30,8 +46,31 @@
                     Edit Profile
                 </button>
             </div>
-            <div class="flex justify-center pt-4 text-gray-500">
-                Comments made by you
+            {{!-- <div class="flex flex-col items-center justify-center pt-4 text-gray-500">
+                <h3 class="text-lg font-semibold text-gray-800">Comments made by you:</h3>
+                <ul class="m-0 p-0">
+                    {{#if comments}}
+                    {{#each comments}}
+                        <li class="bg-gray-100 p-2 mt-2 rounded-lg shadow-sm">{{comment}}</li>
+                    {{/each}}
+                    {{else}}
+                        No user comments.
+                    {{/if}}
+                </ul>
+            </div> --}}
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-gray-800 text-center">Comments made by you:</h3>
+                <div class="grid sm:grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 gap-4 mt-4 px-8">
+                    {{#if comments}}
+                    {{#each comments}}
+                    <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                        <p class="text-gray-800">{{comment}}</p>
+                    </div>
+                    {{/each}}
+                    {{else}}
+                    <p class="text-gray-500 text-center">No user comments.</p>
+                    {{/if}}
+                </div>
             </div>
         </div>
     </div>
@@ -45,10 +84,71 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="/updateUser">
-                    <div class="mb-3 d-flex align-items-center">
-                        <img src="{{profile.profile_picture}}" class="rounded-full w-52 h-52">
-                        <label for="username" class="form-label me-2">Profile Picture</label>
-                        <input type="text" class="form-control" id="username" name="username" value="{{user.username}}">
+                    <div class="mb-3 d-flex align-items-center flex-col">
+                        <img src="{{profile.profile_picture}}" class="rounded-full w-52 h-52 object-cover">
+                        <div class="d-flex mt-2">
+                            <div>
+                                <label>
+                                    <img
+                                        src="../../resources/images/central-park-image.jpeg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Central Park"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/disney-world-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Disney World"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/golden-gate-bridge-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Golden Gate Bridge"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/grand-canyon-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Grand Canyon"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/Hamilton-Pool-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Hamilton Pool"
+                                    />
+                                </label>
+                            </div>
+                            <div class="ml-2">
+                                <label>
+                                    <img
+                                        src="../../resources/images/niagara-falls-image.jpg"
+                                        class="rounded-full w-16 h-16 object-cover cursor-pointer"
+                                        onclick="selectImage(this)"
+                                        alt="Niagara Falls"
+                                    />
+                                </label>
+                            </div>
+                            <input type="hidden" id="profilePicture" name="profilePicture" value="{{profile.profile_picture}}"/>
+                        </div>
                     </div>
                     <div class="mb-3 d-flex align-items-center">
                         <label for="username" class="form-label me-2">Username</label>
