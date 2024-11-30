@@ -347,149 +347,103 @@ app.get("/logout", (req, res) => {
  res.redirect("/login");
 });
 
-app.get("/savedArticlesTesting", auth, async (req, res) => {
-  const user_id = req.session.user.user_id;
 
-  // Query to fetch saved articles
-  const savedArticlesQuery = `
-    SELECT a.article_id, a.title, a.a_date, a.author, a.thumbnail, a.link
-    FROM articles a
-    INNER JOIN articles_to_users atu ON a.article_id = atu.article_id
-    WHERE atu.user_id = $1
-    ORDER BY a.a_date DESC;
+app.get("/savedArticles", async (req, res) => {
+  const get_articles =      
+  `
+    SELECT * 
+    FROM articles 
+    JOIN articles_to_users ON articles.article_id = articles_to_users.article_id
+    JOIN users ON articles_to_users.user_id = users.user_id
+    WHERE users.username = $1;
   `;
 
-  try {
-    const savedArticles = await db.any(savedArticlesQuery, [user_id]);
 
-    res.render("pages/savedarticles", {
-      articles: savedArticles,
-      user: req.session.user.username,
-    });
-  } catch (error) {
-    console.error("Error fetching saved articles or comments:", error);
+  // the following comments for saving a few articles to the users profile, this cannot be done in insert since the user doesn't exist
 
-    res.render("pages/savedarticles", {
-      articles: [],
-      comments: [],
-      user: req.session.user.username,
-      message: "Failed to fetch saved articles or comments. Please try again later.",
-    });
-  }
-});
+  // const temp_insert = 
+  // `
+  //   INSERT INTO articles_to_users (article_id, user_id)
+  //   VALUES
+  //     (1, 2),
+  //     (2, 2),
+  //     (3, 2),
+  //     (4, 2),
+  //     (5, 2);
+ 
+  // `;
 
-app.get("/savedArticles", (req, res) => {
-  const get_comments = 'SELECT * FROM COMMENTS';
+  // const temp_insert2 = 
+  // `
+  //   SELECT * FROM articles_to_comments; 
+  // `;
 
-  db.any(get_comments)
-    .then(function (data) {
-      const comments = data;
+  // db.any(temp_insert)
+  // .then(function (data) {
+  //   console.log("articles_to_users", data);
+  // });
+  // db.any(temp_insert2)
+  //   .then(function (data) {
+  //     console.log('articles_to_comments',data);
+  //   });
 
-      const mockData = [
-        {
-          thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-          title: "title Test 1",
-          a_date: "2021-09-01",
-          author: "Myung Test",
-          comments: comments,
-        },
-        {
-          thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-          title: "title Test 2",
-          a_date: "2022-10-01",
-          author: "Jeno Test",
-          comments: comments,
-        },
-        {
-          thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-          title: "title Test 3",
-          a_date: "2016-05-21",
-          author: "Lomon Test",
-          comments: comments,
-        },
-      ];
-      res.render("pages/savedarticles", { articles: mockData, user: req.session.user.username });
-    })
+
+  const articles = await db.any(get_articles, [req.session.user.username]);
+    
+    // Fetch comments for all articles concurrently
+    const articlesWithComments = await Promise.all(
+      articles.map(async (article) => {
+        const get_comments = `
+          SELECT *
+          FROM comments
+          INNER JOIN articles_to_comments ON comments.comment_id = articles_to_comments.comment_id
+          WHERE articles_to_comments.article_id = $1;
+        `;
+
+        const comments = await db.any(get_comments, [article.article_id]);
+        return {
+          ...article,
+          comments,
+        };
+      })
+    );
+
+    // uncomment to inspect articles structure 
+    // console.log('=================');
+    // console.log(articlesWithComments);
+    // console.log('=================');
+    // console.log(articlesWithComments[0]);
+    // console.log('=================');
+    // console.log(articlesWithComments[0].comments);
+    // console.log('=================');
+    // console.log(articlesWithComments[1]);
+    // console.log('=================');
+    // console.log(articlesWithComments[2]);
+
+  res.render("pages/savedarticles", { articles: articlesWithComments, user: req.session.user.username });
 });
 
 app.post("/savedArticles", async (req, res) => {
-  const user = req.session.user;
-  if (req.body.comment) {
-    const add_comment = 'INSERT INTO comments (username,comment) VALUES ($1, $2) RETURNING *;';
-    const comment_added = await db.one(add_comment, [req.session.user.username, req.body.comment]);
+  if (req.body.comment) {  
+    console.log("inside", req.body)    
+    const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
+    const comment_added = await db.one(add_comment,[req.session.user.username, req.body.comment]);
 
-    const add_to_uc = `INSERT INTO users_to_comments ( user_id, comment_id ) VALUES ($1, $2);`;
-    const comment_added_to_uc = await db.none(add_to_uc, [user.user_id, comment_added.comment_id]);
+    const add_articles_to_comments = 'INSERT INTO ARTICLES_TO_COMMENTS (article_id, comment_id) VALUES ($1, $2) RETURNING *;';
+    const atc_response = await db.one(add_articles_to_comments, [req.body.commentRequest, comment_added.comment_id])
 
-    if (comment_added) {
-      db.any('SELECT * FROM COMMENTS')
-        .then(function (data) {
-          const comments = data;
-
-          const mockData = [
-            {
-              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              title: "title Test 1",
-              a_date: "2021-09-01",
-              author: "Myung Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              title: "title Test 2",
-              a_date: "2022-10-01",
-              author: "Jeno Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              title: "title Test 3",
-              a_date: "2016-05-21",
-              author: "Lomon Test",
-              comments: comments,
-            },
-          ];
-          res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username });
-        })
-    }
+    res.redirect('/savedArticles');
   }
   else if(req.body.deleted_comment_id){
     const delete_query = 'DELETE FROM COMMENTS WHERE comment_id = $1 RETURNING *';
     const success = await db.oneOrNone(delete_query, [req.body.deleted_comment_id]);
 
-    if (success) {
-      db.any('SELECT * FROM COMMENTS')
-        .then(function (data) {
-          const comments = data;
-
-          const mockData = [
-            {
-              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              title: "title Test 1",
-              a_date: "2021-09-01",
-              author: "Myung Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              title: "title Test 2",
-              a_date: "2022-10-01",
-              author: "Jeno Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              title: "title Test 3",
-              a_date: "2016-05-21",
-              author: "Lomon Test",
-              comments: comments,
-            },
-          ];
-          res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username});
-        })
-    }
+    res.redirect("/savedArticles");
+   
   }
   else if(req.body.edit_comment_id_show){
+    res.redirect("/savedArticles");
+    return;
       db.any('SELECT * FROM COMMENTS')
         .then(function (data) {
           const comments = data;
@@ -521,7 +475,10 @@ app.post("/savedArticles", async (req, res) => {
         })
     }
     else if(req.body.edited_comment_text){
-      const update_query = 'UPDATE comments SET comment = $1 WHERE comment_id = $2 RETURNING *';
+      res.redirect("/savedArticles");
+      return;
+      
+      const update_query = 'UPDATE comments SET comment =$1 WHERE comment_id = $2 RETURNING *';
       const updated = await db.one(update_query,[req.body.edited_comment_text, req.body.edited_comment_id]);
       if(updated){
       db.any('SELECT * FROM COMMENTS')
