@@ -3,6 +3,36 @@
         document.getElementById("comment").required = false;
         return;
     }
+
+
+    function toggleEditing(commentId) {
+        const displayDiv = document.getElementById(`comment-display-${commentId}`);
+        const editDiv = document.getElementById(`comment-edit-${commentId}`);
+        const editBtn = document.getElementById(`edit-btn-${commentId}`);
+        const saveBtn = document.getElementById(`save-btn-${commentId}`);
+        
+
+        if (!displayDiv || !editDiv || !editBtn || !saveBtn) {
+            console.error("One or more elements are missing for commentId:", commentId);
+            console.log(displayDiv);
+            console.log(editDiv);
+            console.log(editBtn);
+            console.log(saveBtn);
+            return;
+        }
+
+        if (displayDiv.style.display === "none") {
+            displayDiv.style.display = "block";
+            editDiv.style.display = "none";
+            editBtn.style.display = "inline-block";
+            saveBtn.style.display = "none";
+        } else {
+            displayDiv.style.display = "none";
+            editDiv.style.display = "block";
+            editBtn.style.display = "none";
+            saveBtn.style.display = "inline-block";
+        }
+    }
 </script>
 
 <div class="modal fade" tabindex="-1" id="comments{{article_id}}">
@@ -23,58 +53,50 @@
                                 <th class="text-left font-semibold">Comment</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {{#each comments}}
-                            {{#if (isequal ../edit_comment_id_show comment_id)}}
-                            <tr>
+                        <tbody>                           
+                        {{#each comments}}
+                            <tr id="comment-row-{{comment_id}}">
                                 <td class="py-2">{{username}}</td>
-                                <td>
-                                    <form method="POST" action="/savedArticles">
-                                        <div class="d-flex align-items-start">
-                                            <input name="edited_comment_id" class="invisible" type="text"
-                                                value="{{comment_id}}"
-                                                style="width: 1px; height: 1px; padding: 0; margin: 0; border: none;">
-                                            <input type="text" name="edited_comment_text" class="form-control" value="{{comment}}">
-                                            <button style="margin-left: 10px;"
-                                                class="bg-blue-500 text-white px-2 py-2 rounded-lg hover:bg-blue-600"
-                                                type="submit"> Update </button>
-                                        </div>
-                                    </form>
+                                <form method="POST" action="/savedArticles">
+                                <td class="py-2">
+                                    <div id="comment-display-{{comment_id}}" style="display: block;">
+                                        {{comment}}
+                                    </div>
+                                    <div id="comment-edit-{{comment_id}}" style="display: none;">
+                                        <input type="text" name="edit-input-{{comment_id}}" id="edit-input-{{comment_id}}" class="form-control" value="{{comment}}">
+                                    </div>
                                 </td>
-                            </tr>
-                            {{else}}
-                            <tr>
-                                <td class="py-2">{{this.username}}</td>
-                                <td class="py-2">{{this.comment}}</td>
                                 {{#if (isequal ../user username)}}
                                 <td>
-                                    <form method="POST" action="/savedArticles">
-                                        <div class="d-flex align-items-start">
-                                            <input name="edit_comment_id_show" class="invisible" type="text"
-                                                value="{{comment_id}}"
-                                                style="width: 1px; height: 1px; padding: 0; margin: 0; border: none;">
-                                            <button
-                                                class="bg-blue-500 text-white px-2.5 py-2 rounded-lg hover:bg-blue-600"
-                                                type="submit"> <i class="fa-solid fa-pen-to-square"></i> </button>
-                                        </div>
-                                    </form>
+                                    <input name="edit_comment_id_show" type="hidden" type="text"
+                                                value="{{comment_id}}">
+                                    <button 
+                                        id="save-btn-{{comment_id}}" 
+                                        onclick="saveComment({{comment_id}})" 
+                                        class="bg-green-500 text-white px-2.5 py-2 rounded-lg hover:bg-green-600"
+                                        style="display: none;">
+                                        Save
+                                    </button>
+                                </form>
+                                    <button 
+                                        id="edit-btn-{{comment_id}}" 
+                                        onclick="toggleEditing({{comment_id}})" 
+                                        class="bg-blue-500 text-white px-2.5 py-2 rounded-lg hover:bg-blue-600">
+                                        <i class="fa-solid fa-pen-to-square"></i> <!-- Edit icon -->
+                                    </button>
                                 </td>
                                 <td>
                                     <form method="POST" action="/savedArticles">
-                                        <div class="d-flex align-items-start">
-                                            <input name="deleted_comment_id" class="invisible" type="text"
-                                                value="{{comment_id}}"
-                                                style="width: 1px; height: 1px; padding: 0; margin: 0; border: none;">
-                                            <button id="delete_column" style="display: block" onclick="form_req()"
-                                                class="bg-blue-500 text-white px-2.5 py-2 rounded-lg hover:bg-blue-600"
-                                                type="submit"> <i class="fa-solid fa-trash"></i> </button>
-                                        </div>
+                                        <input type="hidden" name="deleted_comment_id" value="{{comment_id}}">
+                                        <button class="bg-red-500 text-white px-2.5 py-2 rounded-lg hover:bg-red-600">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
                                     </form>
                                 </td>
                                 {{/if}}
                             </tr>
-                            {{/if}}
-                            {{/each}}
+                        {{/each}}
+           
                         </tbody>
                     </table>
                 </div>
