@@ -361,22 +361,22 @@ app.get("/savedArticles", async (req, res) => {
 
   // the following comments for saving a few articles to the users profile, this cannot be done in insert since the user doesn't exist
 
-  // const temp_insert = 
-  // `
-  //   INSERT INTO articles_to_users (article_id, user_id)
-  //   VALUES
-  //     (1, 2),
-  //     (2, 2),
-  //     (3, 2),
-  //     (4, 2),
-  //     (5, 2);
+  const temp_insert = 
+  `
+    INSERT INTO articles_to_users (article_id, user_id)
+    VALUES
+      (1, 2),
+      (2, 2),
+      (3, 2),
+      (4, 2),
+      (5, 2);
  
-  // `;
+  `;
 
-  // const temp_insert2 = 
-  // `
-  //   SELECT * FROM articles_to_comments; 
-  // `;
+  const temp_insert2 = 
+  `
+    SELECT * FROM articles_to_comments; 
+  `;
 
   // db.any(temp_insert)
   // .then(function (data) {
@@ -442,76 +442,37 @@ app.post("/savedArticles", async (req, res) => {
    
   }
   else if(req.body.edit_comment_id_show){
-    res.redirect("/savedArticles");
-    return;
-      db.any('SELECT * FROM COMMENTS')
-        .then(function (data) {
-          const comments = data;
+    console.log("edit");
+    console.log(req.body);
 
-          const mockData = [
-            {
-              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              title: "title Test 1",
-              a_date: "2021-09-01",
-              author: "Myung Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              title: "title Test 2",
-              a_date: "2022-10-01",
-              author: "Jeno Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              title: "title Test 3",
-              a_date: "2016-05-21",
-              author: "Lomon Test",
-              comments: comments,
-            },
-          ];
-          res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username, edit_comment_id_show: req.body.edit_comment_id_show});
-        })
-    }
-    else if(req.body.edited_comment_text){
+    const commentId = req.body.edit_comment_id_show;
+    const newComment = req.body[`edit-input-${commentId}`];
+
+    if (!newComment) {
       res.redirect("/savedArticles");
       return;
-      
-      const update_query = 'UPDATE comments SET comment =$1 WHERE comment_id = $2 RETURNING *';
-      const updated = await db.one(update_query,[req.body.edited_comment_text, req.body.edited_comment_id]);
-      if(updated){
-      db.any('SELECT * FROM COMMENTS')
-        .then(function (data) {
-          const comments = data;
-
-          const mockData = [
-            {
-              thumbnail: "https://assets.teenvogue.com/photos/66ec282d6e5148b6c28841e5/1:1/w_3925,h_3925,c_limit/2173121723",
-              title: "title Test 1",
-              a_date: "2021-09-01",
-              author: "Myung Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://upload.wikimedia.org/wikipedia/commons/c/c2/240318_Lomon.jpg",
-              title: "title Test 2",
-              a_date: "2022-10-01",
-              author: "Jeno Test",
-              comments: comments,
-            },
-            {
-              thumbnail: "https://www.rollingstone.com/wp-content/uploads/2022/09/GettyImages-1423491348.jpg?w=831&h=554&crop=1",
-              title: "title Test 3",
-              a_date: "2016-05-21",
-              author: "Lomon Test",
-              comments: comments,
-            },
-          ];
-          res.status(200).render("pages/savedarticles", { articles: mockData, message: "Comment successfully added to article.", user: req.session.user.username });
-        })
-      }
     }
+
+
+    try {
+      // Update the comment in the database
+      const update_query = `
+        UPDATE COMMENTS 
+        SET comment = $1 
+        WHERE comment_id = $2 
+        RETURNING *;
+      `;
+      const updatedComment = await db.one(update_query, [newComment, commentId]);
+
+      console.log("Updated comment:", updatedComment);
+
+      res.redirect("/savedArticles");
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      res.status(500).send("Failed to update the comment.");
+    }
+  }
+
 });
 
 app.get("/profile", async (req, res) => {
