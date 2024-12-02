@@ -5,9 +5,10 @@
 
 <form action="/newsSearch" method="POST" class="mb-4">
   <input type="text" name="location" placeholder="Enter a location" value="{{location}}" class="form-control" required>
-  <button type="submit" class="btn btn-primary mt-2">Search News</button>
+  <button type="submit" class="bg-cyan-900 text-white py-2 px-4 rounded hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-900 focus:ring-opacity-50">Search News</button>
 </form>
 
+<div style="padding: 20px">
 <div class="row">
   {{#if message}}
     <div class="alert alert-danger">{{message}}</div>
@@ -16,4 +17,5 @@
   {{#each local_news}}
     {{> articlecardMapSearch}}
   {{/each}}
+</div>
 </div>
