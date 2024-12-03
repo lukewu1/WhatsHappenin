@@ -304,11 +304,15 @@ app.get("/newsMap", (req, res) => {
   res.render("pages/newsMap", { mapAPI });
 });
 
-app.post("/newsMap", (req, res) => {
+app.post("/newsMap", async (req, res) => {
   const insertArticleQuery = `
     INSERT INTO articles (title, a_date, author, thumbnail, link)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *;
+  `;
+
+  const findArticleQuery = `
+    SELECT * FROM articles WHERE link = $1;
   `;
 
   const insertArticleToUserQuery = `
@@ -320,24 +324,38 @@ app.post("/newsMap", (req, res) => {
   const { title, date: a_date, author, thumbnail, link } = req.body;
   const user_id = req.session.user.user_id;
 
-  db.one(insertArticleQuery, [title, a_date, author, thumbnail, link])
-    .then((article) => {
-      return db.one(insertArticleToUserQuery, [article.article_id, user_id])
-        .then((userArticle) => {
-          res.status(200).json({
-            message: "Article saved successfully!",
-            article,
-            userArticle,
-          });
-        });
-    })
-    .catch((error) => {
-      console.error("Error saving article:", error);
-      res.status(500).json({
-        message: "Failed to save the article. Please try again later.",
-        error,
-      });
+  let article = await db.oneOrNone(findArticleQuery, [link]);
+  console.log(article);
+
+  if(!article)
+  {
+    article = await db.one(insertArticleQuery, [title, a_date, author, thumbnail, link]);
+  }
+
+  try {
+    // Check if the article already exists
+    let article = await db.oneOrNone(findArticleQuery, [link]);
+
+    // If the article does not exist, insert it
+    if (!article) {
+      article = await db.one(insertArticleQuery, [title, a_date, author, thumbnail, link]);
+    }
+
+    // Create a relation between the article and the user
+    const userArticle = await db.oneOrNone(insertArticleToUserQuery, [article.article_id, user_id]);
+
+    res.status(200).json({
+      message: "Article saved successfully!",
+      article,
+      userArticle,
     });
+  } catch (error) {
+    console.error("Error saving article:", error);
+    res.status(500).json({
+      message: "Failed to save the article. Please try again later.",
+      error,
+    });
+  }
 });
 
 
