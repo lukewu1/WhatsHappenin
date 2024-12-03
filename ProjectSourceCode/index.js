@@ -304,11 +304,15 @@ app.get("/newsMap", (req, res) => {
   res.render("pages/newsMap", { mapAPI });
 });
 
-app.post("/newsMap", (req, res) => {
+app.post("/newsMap", async (req, res) => {
   const insertArticleQuery = `
     INSERT INTO articles (title, a_date, author, thumbnail, link)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING *;
+  `;
+
+  const findArticleQuery = `
+    SELECT * FROM articles WHERE link = $1;
   `;
 
   const insertArticleToUserQuery = `
@@ -320,24 +324,38 @@ app.post("/newsMap", (req, res) => {
   const { title, date: a_date, author, thumbnail, link } = req.body;
   const user_id = req.session.user.user_id;
 
-  db.one(insertArticleQuery, [title, a_date, author, thumbnail, link])
-    .then((article) => {
-      return db.one(insertArticleToUserQuery, [article.article_id, user_id])
-        .then((userArticle) => {
-          res.status(200).json({
-            message: "Article saved successfully!",
-            article,
-            userArticle,
-          });
-        });
-    })
-    .catch((error) => {
-      console.error("Error saving article:", error);
-      res.status(500).json({
-        message: "Failed to save the article. Please try again later.",
-        error,
-      });
+  let article = await db.oneOrNone(findArticleQuery, [link]);
+  console.log(article);
+
+  if(!article)
+  {
+    article = await db.one(insertArticleQuery, [title, a_date, author, thumbnail, link]);
+  }
+
+  try {
+    // Check if the article already exists
+    let article = await db.oneOrNone(findArticleQuery, [link]);
+
+    // If the article does not exist, insert it
+    if (!article) {
+      article = await db.one(insertArticleQuery, [title, a_date, author, thumbnail, link]);
+    }
+
+    // Create a relation between the article and the user
+    const userArticle = await db.oneOrNone(insertArticleToUserQuery, [article.article_id, user_id]);
+
+    res.status(200).json({
+      message: "Article saved successfully!",
+      article,
+      userArticle,
     });
+  } catch (error) {
+    console.error("Error saving article:", error);
+    res.status(500).json({
+      message: "Failed to save the article. Please try again later.",
+      error,
+    });
+  }
 });
 
 
@@ -425,12 +443,16 @@ app.get("/savedArticles", async (req, res) => {
 
 app.post("/savedArticles", async (req, res) => {
   if (req.body.comment) {  
-    console.log("inside", req.body)    
     const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
     const comment_added = await db.one(add_comment,[req.session.user.username, req.body.comment]);
 
     const add_articles_to_comments = 'INSERT INTO ARTICLES_TO_COMMENTS (article_id, comment_id) VALUES ($1, $2) RETURNING *;';
-    const atc_response = await db.one(add_articles_to_comments, [req.body.commentRequest, comment_added.comment_id])
+    await db.one(add_articles_to_comments, [req.body.commentRequest, comment_added.comment_id])
+
+    const add_users_to_comments = `INSERT INTO USERS_TO_COMMENTS (user_id, comment_id) VALUES ($1, $2) RETURNING *;`;
+    await db.one(add_users_to_comments, [req.session.user.user_id, comment_added.comment_id]);
+
+   
 
     res.redirect('/savedArticles');
   }
@@ -512,8 +534,16 @@ app.post('/updateUser', async function (req, res) {
   req.session.save();
   const profile = await db.oneOrNone(updateQuery2, [req.body.description, prevUser.user_id]);
   await db.none(updateQuery3, [req.body.username, prevUser.user_id]);
+
+  const retrieveCommentsQuery = 
+    `SELECT *
+    FROM comments
+    INNER JOIN users_to_comments uc ON comments.comment_id = uc.comment_id
+    WHERE uc.user_id = $1;
+    `;
+    const comments = await db.any(retrieveCommentsQuery, [user.user_id]);
   if (user) {
-    res.render("pages/profile", { user, profile });
+    res.render("pages/profile", { user, profile, comments });
   }
 });
 
