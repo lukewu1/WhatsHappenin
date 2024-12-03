@@ -1,7 +1,7 @@
 {{>message}}
 <div class="grid grid-cols-2 bg-gray-200">
  <div class="h-screen px-20">
-   <h1 class="text-center text-cyan-900 pt-20">Welcome Back!</h1>
+   <h1 class="text-center text-sky-600 pt-20">Welcome Back!</h1>
    <p class="text-center pb-4">Enter your details to sign into your account.</p>
 
 
@@ -21,17 +21,21 @@
          <input type="password" class="form-control" id="password" name="password" placeholder="Password">
        </div>
        <div class="text-center">
-         <button type="submit" class="w-96 bg-cyan-900 text-white py-2 px-4 rounded hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-900 focus:ring-opacity-50">Login</button>
+         <button type="submit" class="mx-auto bg-sky-600 text-white py-2 px-4 rounded hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-900 focus:ring-opacity-50">Login</button>
         </div>
        <p class="pt-2 text-center">Don't have an account? <a href="/register">Create an account!</a></p>
      </form>
    </div>
+   <div style="padding-top: 50px;">
+  <p class="text-left p-2 bg-gray-50 rounded text-slate-950">Curious about what's happening in the world? Our application allows users to drop pins around the world to tell them the local news at that specific location.
+    WhatsHappenin brings the news to you based on your location of interest whether out of research for a particular area or out of simple curiosity.</p>
+  </div>
  </div>
 
-
- <div class="p-2">
-   <img src="https://cdn.pixabay.com/photo/2024/07/06/04/27/map-8875911_1280.png" class="mx-auto center w-4/6 bg-stone-100 mt-8 mb-2" alt="login image">
-   <p class="text-center p-2 bg-gray-50 rounded text-blue-900">Curious about what's happening in the world? Our application allows users to drop pins around the world to tell them the local news at that specific location.
-     WhatsHappenin brings the news to you based on your location of interest whether out of research for a particular area or out of simple curiosity.</p>
+  
+ <div class="p-2" style="background-image: url('https://images.unsplash.com/photo-1507486076008-3c60cfcce36f?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: bottom; height: 100%">
+   {{!-- <img src="https://cdn.pixabay.com/photo/2024/07/06/04/27/map-8875911_1280.png" class="mx-auto top-0 left-0 w-4/6 mt-8 mb-2" alt="login image"> --}}
+   {{!-- <p class="text-center p-2 bg-gray-50 rounded text-blue-900">Curious about what's happening in the world? Our application allows users to drop pins around the world to tell them the local news at that specific location.
+     WhatsHappenin brings the news to you based on your location of interest whether out of research for a particular area or out of simple curiosity.</p> --}}
  </div>
 </div>

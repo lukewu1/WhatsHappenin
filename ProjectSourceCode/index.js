@@ -101,6 +101,7 @@ app.get('/welcome', (req, res) => {
 });
 
 
+//login endpoint and routes
 app.get("/", (req, res) => {
   res.redirect("/login");
 });
@@ -110,7 +111,7 @@ app.get("/login", (req, res) => {
   res.render("pages/login");
 });
 
-
+//finding the user in the database and checking if the password matches the hashed password in the database
 app.post('/login', async (req, res) => {
   //hash the password using bcrypt library
   const isTest = req.query.test;
@@ -157,7 +158,7 @@ app.get("/register", (req, res) => {
   res.render("pages/register");
 });
 
-
+//register endpoint and routes
 app.post('/register', async (req, res) => {
   const isTest = req.query.test;
 
@@ -271,7 +272,7 @@ app.post("/newsSearch", auth, async (req, res) => {
   }
 });
 
-
+//route for testing the news search (not actively used)
 app.get("/Dummy", auth, async (req, res) => {
   const axios = require("axios");
   const location = "Austin, Texas, United States";
@@ -297,6 +298,7 @@ app.get("/Dummy", auth, async (req, res) => {
   }
 });
 
+//getting the news map page
 app.get("/newsMap", (req, res) => {
   const mapAPI = `https://maps.googleapis.com/maps/api/js?key=${process.env.MAP_API_KEY}&callback=console.debug&libraries=maps,marker&v=beta`
 
@@ -304,6 +306,7 @@ app.get("/newsMap", (req, res) => {
   res.render("pages/newsMap", { mapAPI });
 });
 
+//route for saving articles to the user's profile
 app.post("/newsMap", async (req, res) => {
   const insertArticleQuery = `
     INSERT INTO articles (title, a_date, author, thumbnail, link)
@@ -365,7 +368,7 @@ app.get("/logout", (req, res) => {
  res.redirect("/login");
 });
 
-
+//route for getting the saved articles
 app.get("/savedArticles", async (req, res) => {
   const get_articles =      
   `
@@ -441,6 +444,7 @@ app.get("/savedArticles", async (req, res) => {
   res.render("pages/savedarticles", { articles: articlesWithComments, user: req.session.user.username });
 });
 
+//route for updating and posting comments
 app.post("/savedArticles", async (req, res) => {
   if (req.body.comment) {  
     const add_comment = 'INSERT INTO COMMENTS (username,comment) VALUES ($1, $2) RETURNING *;';
@@ -497,6 +501,7 @@ app.post("/savedArticles", async (req, res) => {
 
 });
 
+//route for profile page
 app.get("/profile", async (req, res) => {
   const user = req.session.user;
 
@@ -522,6 +527,7 @@ app.get("/profile", async (req, res) => {
   }
 });
 
+//route for updating user profile
 app.post('/updateUser', async function (req, res) {
   const prevUser = req.session.user;
   const updateQuery1 = `UPDATE users SET username = $1 WHERE user_id = $2 RETURNING *;`;
