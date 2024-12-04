@@ -1,15 +1,27 @@
 {{> message }}
 
 <body>
-    <div class="container" style="padding: 50px">
-        <h1>Saved Articles</h1>
+  <div class="d-flex bg-gray-50 h-screen justify-center">
+    <div class="w-2/3 bg-white h-screen shadow-md pt-4">
+        {{!-- <h1>Saved Articles</h1> --}}
         <div class="d-flex flex-column align-items-center">
           {{!use ../user because we get user to savedarticles form index.js, but each creates a new scope for each article}}
+          {{#if articles}}
             {{#each articles}}
             {{>articlecard article_id=this.article_id user=../user edit_comment_id_show=../edit_comment_id_show article_id=this.article_id}}
             {{/each}}
+          {{else}}
+            <img
+              src="../../resources/images/nothing.png"
+              {{!-- class="rounded-full w-16 h-16 object-cover cursor-pointer" --}}
+              class="w-40"
+              alt="Nothing To Show"
+            />
+            <h4>Nothing to see here. Save an article to start!</h4>
+          {{/if}}
         </div>
     </div>
+  </div>
 </body>
 
 <style>
