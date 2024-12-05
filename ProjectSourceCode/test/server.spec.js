@@ -9,7 +9,6 @@ const chaiHttp = require('chai-http');
 chai.should();
 chai.use(chaiHttp);
 const {assert, expect} = chai;
-const sinon = require("sinon");
 
 // ********************** DEFAULT WELCOME TESTCASE ****************************
 
